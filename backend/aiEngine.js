@@ -65,64 +65,40 @@ const RESPONSES = {
         "I'm doing well, thank you for asking. How can I help you with your health journey today?"
     ],
     sad_or_depressed: [
-        formatResponse(
-            "I recognize signs of depression and low mood from your message. This is a clinically valid health concern.",
-            ["Engage in one small, manageable activity today (e.g., taking a short walk).", "Ensure you are drinking water and eating balanced meals.", "Consider logging these feelings in your journal to track patterns."],
-            "Have you experienced any changes in your appetite or physical energy levels?"
-        )
+        "I'm sorry you're feeling this way. Dealing with low mood or depression is really tough. Have you been able to talk to anyone about how you're feeling?",
+        "It sounds like you're going through a difficult time emotionally. I'm here to listen and support you in any way I can."
     ],
     anxious: [
-        formatResponse(
-            "You are exhibiting signs of anxiety or heightened stress, which affects both mind and body.",
-            ["Try the 5-4-3-2-1 grounding technique.", "Practice slow diaphragmatic breathing (inhale 4s, hold 4s, exhale 6s).", "Reduce caffeine intake for the next 24 hours."],
-            "Where in your body do you feel this anxiety right now (e.g., chest tightness, stomach upset)?"
-        )
+        "I hear that you're feeling anxious right now. Anxiety can be very overwhelming, both mentally and physically. What do you think is triggering this feeling?",
+        "When things feel stressful or anxious, it can help to take a few deep breaths. I'm here with you."
     ],
     hopeless: [
-        formatResponse(
-            "Feelings of hopelessness are severe symptoms of depression and warrant careful attention.",
-            ["Reach out to a trusted individual or healthcare provider immediately.", "Remind yourself that this cognitive distortion is a symptom, not a permanent reality.", "Focus only on getting through the next hour, rather than the whole day."],
-            "Can you tell me about your sleep and eating patterns over the last 48 hours?"
-        )
+        "I'm really concerned to hear that you're feeling hopeless. These feelings are very heavy and important to address. Please consider reaching out to a professional or a loved one who can support you.",
+        "When things feel pointlessly difficult, it's often a sign that you need some extra help. You don't have to go through this alone."
     ],
     sleep: [
-        formatResponse(
-            "Sleep disturbances profoundly impact immune function, cardiovascular health, and emotional regulation.",
-            ["Maintain a consistent sleep-wake cycle.", "Eliminate screen exposure 1 hour before bed.", "Keep your bedroom cool (65–68°F) and completely dark."],
-            "Are you having trouble falling asleep, or staying asleep?"
-        )
+        "Sleep is so important for our health. If you're having trouble resting, it can really affect your mood and energy during the day. Have you tried a regular sleep routine?",
+        "I'm sorry you're not sleeping well. Sleep disturbances can be very frustrating. How long has this been happening?"
     ],
     social: [
-        formatResponse(
-            "Social isolation is a recognized health risk factor, comparable to chronic physical conditions.",
-            ["Identify one person you feel safe sending a brief message to.", "Look into local or online support groups.", "Schedule a brief, low-pressure social interaction this week."],
-            "Do you have a regular healthcare provider or therapist you can talk to?"
-        )
+        "Feeling alone or isolated can be very painful. We all need connection. Is there anyone you feel comfortable reaching out to today?",
+        "Social connection is a vital part of health. I'm here to chat, but I hope you can find some real-world support too."
     ],
     progress: [
         "That's wonderful to hear! Seeing progress is a great indicator that your wellness strategies are working. Keep up the great work!",
         "I'm so glad you're feeling better. Improvement in your health journey is always something to celebrate."
     ],
     cbt_thoughts: [
-        formatResponse(
-            "Cognitive distortions can simulate a stress response in the body, affecting your overall health.",
-            ["Write down the negative thought.", "Identify whether it is based on objective facts or subjective feelings.", "Reframe the thought into a more balanced, realistic statement."],
-            "What is the most distressing thought you are currently focused on?"
-        )
+        "The way we think has a huge impact on how we feel. Have you noticed any particular patterns in your thoughts lately?",
+        "Reframing negative thoughts can be a very helpful strategy. What's one positive or neutral way to look at your current situation?"
     ],
     breathing: [
-        formatResponse(
-            "Regulating your breath is a physiological intervention that lowers heart rate and blood pressure.",
-            ["Begin Box Breathing: Inhale for 4s, hold for 4s, exhale for 4s, hold for 4s.", "Repeat this cycle 4 times.", "Focus entirely on the physical sensation of the air moving."],
-            "How does your chest and body feel after completing the breathing cycle?"
-        )
+        "Let's try a simple breathing exercise together. Inhale slowly, hold for a moment, and then exhale even more slowly. How does that feel?",
+        "Taking a moment to focus on your breath can really help calm the nervous system. Would you like to try it now?"
     ],
     therapy: [
-        formatResponse(
-            "Engaging with professional healthcare and therapy is a crucial step in managing your well-being.",
-            ["Adhere to your prescribed treatment or medication plan.", "Prepare a list of symptoms to discuss at your next appointment.", "Communicate openly with your provider about any side effects."],
-            "Are you currently following a specific treatment plan or taking any medications?"
-        )
+        "Seeking professional help through therapy or medical consultation is a very brave and positive step. Are you currently working with a provider?",
+        "Therapy can provide great tools for managing health and wellness. I'm here to support your journey alongside any professional care you receive."
     ],
     relationships: [
         "Interpersonal relationships can certainly impact our overall stress and health. It's important to navigate these carefully. Have you been able to talk to anyone about this?",

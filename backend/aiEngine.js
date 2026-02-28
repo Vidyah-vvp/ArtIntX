@@ -56,18 +56,13 @@ const formatResponse = (assessment, nextSteps, followUp) => {
 // CBT & Healthcare response templates organized by intent
 const RESPONSES = {
     greeting: [
-        formatResponse(
-            "Welcome. I am your healthcare and mental wellness assistant.",
-            ["Please share what brings you here today.", "You can mention any physical symptoms or mental health concerns."],
-            "How can I assist you with your health today?"
-        )
+        "Hello! I am ArtIntX, your AI healthcare guardian. How can I assist you with your health or wellness today?",
+        "Hi there! I'm here to provide healthcare guidance and support. What's on your mind?",
+        "Greetings! I'm ArtIntX. How are you feeling physically and emotionally today?"
     ],
     how_are_you: [
-        formatResponse(
-            "I'm functioning normally and ready to help assess your health.",
-            ["Take a moment to evaluate your own physical and mental state.", "Let me know if you are experiencing any distress."],
-            "What symptoms or feelings are you experiencing right now?"
-        )
+        "I'm functioning at full capacity and ready to assist you! How are you doing?",
+        "I'm doing well, thank you for asking. How can I help you with your health journey today?"
     ],
     sad_or_depressed: [
         formatResponse(
@@ -105,11 +100,8 @@ const RESPONSES = {
         )
     ],
     progress: [
-        formatResponse(
-            "Reporting improvement is an excellent clinical indicator of resilience and effective coping.",
-            ["Document the specific actions you took that led to this improvement.", "Maintain your current self-care and treatment regimen.", "Celebrate this milestone appropriately."],
-            "What specific habits do you feel contributed most to this progress?"
-        )
+        "That's wonderful to hear! Seeing progress is a great indicator that your wellness strategies are working. Keep up the great work!",
+        "I'm so glad you're feeling better. Improvement in your health journey is always something to celebrate."
     ],
     cbt_thoughts: [
         formatResponse(
@@ -133,39 +125,25 @@ const RESPONSES = {
         )
     ],
     relationships: [
-        formatResponse(
-            "Interpersonal stress can elevate cortisol levels and exacerbate both physical and mental health issues.",
-            ["Set clear, healthy boundaries to protect your energy.", "Practice active, non-judgmental communication.", "Consider couples or family counseling if the stress is chronic."],
-            "Are these relationship difficulties affecting your sleep or physical health?"
-        )
+        "Interpersonal relationships can certainly impact our overall stress and health. It's important to navigate these carefully. Have you been able to talk to anyone about this?",
+        "I understand that relationship stress can be heavy. Dealing with these situations often requires patience and clear boundaries."
     ],
     work_school: [
-        formatResponse(
-            "Occupational burnout is a recognized health syndrome involving chronic exhaustion and reduced efficacy.",
-            ["Implement strict boundaries between work/school and rest time.", "Take micro-breaks every 60-90 minutes.", "Speak to HR or a counselor regarding accommodations if necessary."],
-            "Are you experiencing any physical symptoms of burnout, such as headaches or stomach issues?"
-        )
+        "Work and school related stress is very common. It's important to find a balance that doesn't compromise your health. Are you getting enough time to rest?",
+        "Managing professional or academic pressure is key to preventing burnout. Remember to take breaks when you need them."
     ],
     gratitude: [
-        formatResponse(
-            "Daily gratitude practice is clinically shown to improve sleep quality and reduce symptoms of depression.",
-            ["Write down 3 specific things you are grateful for today.", "Reflect on why these transition patterns matter to your well-being.", "Share your gratitude with someone else."],
-            "How does focusing on these positive aspects affect your physical energy today?"
-        )
+        "Practicing gratitude is a powerful tool for wellness. It's great that you're focusing on the positive things in your life!",
+        "That's a lovely sentiment. Focusing on what we're thankful for can really improve our perspective and mental health."
     ],
     who_are_you: [
-        formatResponse(
-            "I am ArtIntX, your AI health companion and symptom assessment assistant.",
-            ["I am designed to help you monitor your physical symptoms and mental well-being.", "I can provide clinical guidance, coping strategies, and crisis detection.", "My goal is to support your health journey with evidence-based insights."],
-            "How can I help you today? You can share any physical or emotional health concerns."
-        )
+        "I am ArtIntX, your AI healthcare guardian and health companion. I'm here to help you assess symptoms, track your wellness, and provide general healthcare guidance.",
+        "ArtIntX at your service! I'm an AI companion dedicated to supporting your physical and mental health journey with symptom assessment and recovery tools."
     ],
     default: [
-        formatResponse(
-            "I'm evaluating your input from a healthcare perspective.",
-            ["Please provide more details about your symptoms or feelings.", "Monitor your condition for any sudden changes.", "Ensure you are practicing baseline self-care: hydration, nutrition, and rest."],
-            "Could you describe exactly what you are feeling and how long it has been going on?"
-        )
+        "I'm here to listen and help. Could you tell me more about what's on your mind or if you're experiencing any specific symptoms?",
+        "I'm ArtIntX, your health companion. I'm ready to help you with any health-related questions or if you just need someone to talk to.",
+        "Could you provide a bit more detail? I want to make sure I give you the most helpful guidance possible."
     ],
 };
 

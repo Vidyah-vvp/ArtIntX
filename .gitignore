@@ -1,0 +1,28 @@
+# Node modules
+node_modules/
+dist/
+build/
+www/
+
+# Databases
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Environment variables
+.env
+.env.local
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Mobile platform artifacts (optional - keep if you have custom native code)
+# android/
+# ios/
+
+# Editor files
+.vscode/
+*.swp
+*.log

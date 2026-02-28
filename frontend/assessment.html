@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#7C6AF4" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ArtIntX" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-512.png" />
+    <title>PHQ-9 Assessment — ArtIntX</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <div class="orb orb-1"></div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Mobile Menu -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- PWA Install Banner -->
+    <div class="pwa-install-banner" id="installBanner">
+        <div class="pwa-install-banner-icon">🧠</div>
+        <div class="pwa-install-banner-text">
+            <div class="pwa-install-banner-title">Install ArtIntX</div>
+            <div class="pwa-install-banner-desc">Add to home screen for the full app experience</div>
+        </div>
+        <button class="pwa-install-btn" id="installBtn" onclick="installPWA()">Install</button>
+        <button class="pwa-install-close" onclick="dismissInstall()">✕</button>
+    </div>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🧠</div><span class="sidebar-logo-text">ArtIntX</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Overview</div>
+                <a class="nav-item" href="dashboard.html"><span class="nav-item-icon">🏠</span> Dashboard</a>
+                <a class="nav-item" href="chatbot.html">
+                    <span class="nav-item-icon">🩺</span> Symptom Checker
+                </a>
+                <div class="nav-section-label">Health Monitoring</div>
+                <a class="nav-item" href="mood.html"><span class="nav-item-icon">📊</span> Mood Tracker</a>
+                <a class="nav-item" href="reminders.html"><span class="nav-item-icon">💊</span> Medicine Reminders</a>
+                <a class="nav-item active" href="assessment.html"><span class="nav-item-icon">📋</span> PHQ-9
+                    Assessment</a>
+                <a class="nav-item" href="analytics.html"><span class="nav-item-icon">📈</span> Analytics</a>
+                <div class="nav-section-label">AI Insights</div>
+                <a class="nav-item" href="risk.html"><span class="nav-item-icon">⚠️</span> Risk Dashboard</a>
+                <a class="nav-item" href="resources.html"><span class="nav-item-icon">📚</span> Resources</a>
+                <div class="nav-section-label">Account</div>
+                <a class="nav-item" href="profile.html"><span class="nav-item-icon">👤</span> My Profile</a>
+            </nav>
+            <div class="sidebar-user">
+                <div class="user-avatar" id="sidebarAvatar">A</div>
+                <div class="user-info">
+                    <div class="user-name" id="sidebarName">User</div>
+                    <div class="user-status">Active now</div>
+                </div>
+                <button class="logout-btn" onclick="localStorage.clear();window.location.href='index.html'">⬡</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>📋 PHQ-9 Depression Screener</h1>
+                <p>Standardized clinical tool to monitor severity of depression over time.</p>
+            </div>
+
+            <div class="page-content page">
+
+                <div class="assessment-card" id="assessmentCard">
+                    <div class="assessment-progress">
+                        <div class="assessment-progress-bar" id="progressBar" style="width: 0%"></div>
+                    </div>
+
+                    <div id="quizContainer">
+                        <p class="text-xs text-muted mb-md">Question <span id="currentIdx">1</span> of 9</p>
+                        <h3 class="assessment-question" id="questionText">Over the last 2 weeks, how often have you
+                            been bothered by: Little interest or pleasure in doing things?</h3>
+
+                        <div class="assessment-options">
+                            <div class="assessment-option" onclick="selectOption(0)">
+                                <div class="assessment-option-num">0</div>
+                                <div class="assessment-option-text">Not at all</div>
+                            </div>
+                            <div class="assessment-option" onclick="selectOption(1)">
+                                <div class="assessment-option-num">1</div>
+                                <div class="assessment-option-text">Several days</div>
+                            </div>
+                            <div class="assessment-option" onclick="selectOption(2)">
+                                <div class="assessment-option-num">2</div>
+                                <div class="assessment-option-text">More than half the days</div>
+                            </div>
+                            <div class="assessment-option" onclick="selectOption(3)">
+                                <div class="assessment-option-num">3</div>
+                                <div class="assessment-option-text">Nearly every day</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="resultContainer" style="display:none; text-align:center;">
+                        <div style="font-size:3rem;margin-bottom:var(--space-md);">✅</div>
+                        <h2 id="resultSeverity">Moderate Depression</h2>
+                        <div class="stats-value" id="resultScore" style="margin:var(--space-md) 0;">12</div>
+                        <p class="text-secondary mb-xl" id="resultDesc">Your score indicates moderate depressive
+                            symptoms. We recommend sharing this with your healthcare provider.</p>
+
+                        <div class="grid-2">
+                            <button class="btn btn-secondary" onclick="resetQuiz()">Retake Test</button>
+                            <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">Go to
+                                Dashboard</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="api-config.js"></script>
+    <script>
+        const API = window.API_URL;
+        const token = localStorage.getItem('ax_token');
+        const user = JSON.parse(localStorage.getItem('ax_user') || '{}');
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+        if (!token) window.location.href = 'index.html';
+
+        document.getElementById('sidebarName').textContent = user.name || 'User';
+
+        const questions = [
+            "Little interest or pleasure in doing things?",
+            "Feeling down, depressed, or hopeless?",
+            "Trouble falling or staying asleep, or sleeping too much?",
+            "Feeling tired or having little energy?",
+            "Poor appetite or overeating?",
+            "Feeling bad about yourself — or that you are a failure or have let yourself or your family down?",
+            "Trouble concentrating on things, such as reading the newspaper or watching television?",
+            "Moving or speaking so slowly that other people could have noticed? Or the opposite — being so fidgety or restless that you have been moving around a lot more than usual?",
+            "Thoughts that you would be better off dead or of hurting yourself in some way?"
+        ];
+
+        let currentQuestion = 0;
+        let scores = [];
+
+        function selectOption(val) {
+            scores.push(val);
+            if (currentQuestion < 8) {
+                currentQuestion++;
+                updateUI();
+            } else {
+                submitQuiz();
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('questionText').textContent = "Over the last 2 weeks, how often have you been bothered by: " + questions[currentQuestion];
+            document.getElementById('currentIdx').textContent = currentQuestion + 1;
+            document.getElementById('progressBar').style.width = ((currentQuestion / 9) * 100) + "%";
+        }
+
+        async function submitQuiz() {
+            const body = {};
+            scores.forEach((s, i) => body[`q${i + 1}`] = s);
+
+            try {
+                const res = await fetch(`${API}/assessment/phq9`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+
+                document.getElementById('quizContainer').style.display = 'none';
+                document.getElementById('resultContainer').style.display = 'block';
+                document.getElementById('resultScore').textContent = data.total_score;
+                document.getElementById('resultSeverity').textContent = data.severity;
+                document.getElementById('progressBar').style.width = "100%";
+
+                if (data.total_score >= 15) {
+                    document.getElementById('resultSeverity').classList.add('text-danger');
+                    document.getElementById('resultDesc').innerHTML = "<strong>CRITICAL:</strong> Your score indicates severe depressive symptoms. Please call 9999 666 555 (Vandrevala Foundation) or seek professional help immediately.";
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function resetQuiz() {
+            currentQuestion = 0;
+            scores = [];
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('resultContainer').style.display = 'none';
+            updateUI();
+        }
+    </script>
+
+    <!-- Mobile Navigation & PWA Install -->
+    <script>
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const isOpen = sidebar.classList.toggle('open');
+            if (isOpen) {
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close sidebar when clicking a nav link on mobile
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleSidebar();
+                }
+            });
+        });
+
+        // PWA Install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (!localStorage.getItem('pwa_install_dismissed')) {
+                setTimeout(() => {
+                    document.getElementById('installBanner')?.classList.add('show');
+                }, 3000);
+            }
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(choice => {
+                    if (choice.outcome === 'accepted') {
+                        console.log('[PWA] App installed');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installBanner')?.classList.remove('show');
+                });
+            }
+        }
+
+        function dismissInstall() {
+            document.getElementById('installBanner')?.classList.remove('show');
+            localStorage.setItem('pwa_install_dismissed', 'true');
+        }
+    </script>
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+                    .catch(err => console.warn('[PWA] SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

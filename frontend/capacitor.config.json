@@ -1,0 +1,8 @@
+{
+  "appId": "ai.artintx.app",
+  "appName": "ArtIntX",
+  "webDir": "www",
+  "server": {
+    "cleartext": true
+  }
+}

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#7C6AF4" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ArtIntX" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-512.png" />
+    <title>Healthcare Resources & Support — ArtIntX</title>
+    <meta name="description"
+        content="Access medical resources, emergency helplines, and comprehensive healthcare guidance." />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+        .crisis-hero {
+            background: linear-gradient(135deg, rgba(248, 113, 113, 0.12) 0%, rgba(251, 146, 60, 0.12) 100%);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            border-radius: var(--radius-xl);
+            padding: var(--space-2xl);
+            margin-bottom: var(--space-xl);
+            display: flex;
+            align-items: center;
+            gap: var(--space-xl);
+            flex-wrap: wrap;
+        }
+
+        .crisis-hero-icon {
+            font-size: 4rem;
+            flex-shrink: 0;
+        }
+
+        .hotline-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .hotline-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            transition: all var(--transition-base);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .hotline-card:hover {
+            border-color: var(--border-accent);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow-sm);
+        }
+
+        .hotline-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .hotline-num {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hotline-desc {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        .hotline-avail {
+            font-size: 0.7rem;
+            color: var(--brand-success);
+            font-weight: 600;
+        }
+
+        .resource-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: var(--space-md);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cbt-tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .cbt-tool {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .cbt-tool:hover {
+            border-color: var(--border-accent);
+            background: var(--bg-glass-hover);
+        }
+
+        .cbt-tool-icon {
+            font-size: 2rem;
+            margin-bottom: var(--space-sm);
+        }
+
+        .cbt-tool-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .cbt-tool-desc {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        .expandable-content {
+            display: none;
+            margin-top: var(--space-md);
+            padding-top: var(--space-md);
+            border-top: 1px solid var(--border-subtle);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .cbt-tool.expanded .expandable-content {
+            display: block;
+        }
+
+        .step-list {
+            list-style: none;
+            counter-reset: steps;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .step-list li {
+            counter-increment: steps;
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-sm);
+        }
+
+        .step-list li::before {
+            content: counter(steps);
+            background: var(--gradient-primary);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .breathing-animation {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            margin: var(--space-lg) auto;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .breathing-animation.running {
+            animation: breathe 8s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+
+            25% {
+                transform: scale(1.4);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.4);
+                opacity: 0.9;
+            }
+
+            75% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+        }
+
+        .app-recommendations {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .app-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            background: var(--bg-glass);
+            border-radius: var(--radius-md);
+            transition: background var(--transition-fast);
+        }
+
+        .app-row:hover {
+            background: var(--bg-glass-hover);
+        }
+
+        .app-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .app-info {
+            flex: 1;
+        }
+
+        .app-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .app-desc {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        .app-badge {
+            padding: 3px 10px;
+            background: rgba(124, 106, 244, 0.15);
+            border: 1px solid rgba(124, 106, 244, 0.3);
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            color: var(--brand-primary);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- Mobile Menu -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- PWA Install Banner -->
+    <div class="pwa-install-banner" id="installBanner">
+        <div class="pwa-install-banner-icon">🧠</div>
+        <div class="pwa-install-banner-text">
+            <div class="pwa-install-banner-title">Install ArtIntX</div>
+            <div class="pwa-install-banner-desc">Add to home screen for the full app experience</div>
+        </div>
+        <button class="pwa-install-btn" id="installBtn" onclick="installPWA()">Install</button>
+        <button class="pwa-install-close" onclick="dismissInstall()">✕</button>
+    </div>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🧠</div><span class="sidebar-logo-text">ArtIntX</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Overview</div>
+                <a class="nav-item" href="dashboard.html"><span class="nav-item-icon">🏠</span> Dashboard</a>
+                <a class="nav-item" href="chatbot.html">
+                    <span class="nav-item-icon">🩺</span> Symptom Checker
+                </a>
+                <div class="nav-section-label">Health Monitoring</div>
+                <a class="nav-item" href="mood.html"><span class="nav-item-icon">📊</span> Mood Tracker</a>
+                <a class="nav-item" href="reminders.html"><span class="nav-item-icon">💊</span> Medicine Reminders</a>
+                <a class="nav-item" href="assessment.html"><span class="nav-item-icon">📋</span> PHQ-9 Assessment</a>
+                <a class="nav-item" href="analytics.html"><span class="nav-item-icon">📈</span> Analytics</a>
+                <div class="nav-section-label">AI Insights</div>
+                <a class="nav-item" href="risk.html"><span class="nav-item-icon">⚠️</span> Risk Dashboard</a>
+                <a class="nav-item active" href="resources.html"><span class="nav-item-icon">📚</span> Resources</a>
+                <div class="nav-section-label">Account</div>
+                <a class="nav-item" href="profile.html"><span class="nav-item-icon">👤</span> My Profile</a>
+            </nav>
+            <div class="sidebar-user">
+                <div class="user-avatar" id="sidebarAvatar">A</div>
+                <div class="user-info">
+                    <div class="user-name" id="sidebarName">User</div>
+                    <div class="user-status">Active now</div>
+                </div>
+                <button class="logout-btn" onclick="localStorage.clear();window.location.href='index.html'">⬡</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>📚 Resources & Crisis Help</h1>
+                <p>Evidence-based tools, hotlines, and coping strategies available anytime</p>
+            </div>
+
+            <div class="page-content page">
+
+                <!-- Crisis Banner -->
+                <div class="crisis-hero mb-xl">
+                    <div class="crisis-hero-icon">🚨</div>
+                    <div style="flex:1;">
+                        <h2 style="color:#F87171;margin-bottom:8px;">If you're in crisis right now</h2>
+                        <p style="color:var(--text-secondary);margin-bottom:var(--space-md);">Please reach out
+                            immediately. You are not alone, and help is available 24 hours a day, 7 days a week.</p>
+                        <div style="display:flex;gap:var(--space-sm);flex-wrap:wrap;">
+                            <a href="tel:9999666555" class="btn btn-danger">📞 Vandrevala Foundation</a>
+                            <a href="tel:09152987821" class="btn btn-secondary">💬 iCall (TISS)</a>
+                            <a href="tel:112" class="btn btn-secondary">🚑 Emergency 112</a>
+                            <button class="btn btn-secondary" onclick="window.location.href='chatbot.html'">🤖 Talk to
+                                Aria</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Crisis Hotlines -->
+                <div class="resource-section-title mb-md">📞 Crisis Hotlines & Support Lines</div>
+                <div class="hotline-grid mb-xl">
+                    <div class="hotline-card">
+                        <div class="hotline-name">🇮🇳 Vandrevala Foundation</div>
+                        <div class="hotline-num">9999 666 555</div>
+                        <div class="hotline-desc">India's leading mental health helpline offering free, professional
+                            counseling in multiple languages including English, Hindi, and regional languages.</div>
+                        <div class="hotline-avail">✅ Available 24/7 · Call</div>
+                    </div>
+                    <div class="hotline-card">
+                        <div class="hotline-name">📞 iCall — TISS Mumbai</div>
+                        <div class="hotline-num">9152 987 821</div>
+                        <div class="hotline-desc">Psychosocial helpline by Tata Institute of Social Sciences providing
+                            free counseling for emotional and psychological distress.</div>
+                        <div class="hotline-avail">✅ Mon–Sat, 8 AM – 10 PM</div>
+                    </div>
+                    <div class="hotline-card">
+                        <div class="hotline-name">🙏 AASRA</div>
+                        <div class="hotline-num">9820 466 726</div>
+                        <div class="hotline-desc">Crisis intervention centre for the suicidal and the despairing.
+                            Provides emotional support and counseling.</div>
+                        <div class="hotline-avail">✅ Available 24/7 · Call</div>
+                    </div>
+                    <div class="hotline-card">
+                        <div class="hotline-name">🏥 NIMHANS Helpline</div>
+                        <div class="hotline-num">080-4611 0007</div>
+                        <div class="hotline-desc">National Institute of Mental Health and Neurosciences, Bangalore —
+                            India's premier mental health institution helpline.</div>
+                        <div class="hotline-avail">✅ Available 24/7 · Call</div>
+                    </div>
+                    <div class="hotline-card">
+                        <div class="hotline-name">💚 Snehi</div>
+                        <div class="hotline-num">044-2464 0050</div>
+                        <div class="hotline-desc">Chennai-based NGO offering emotional support, suicide prevention,
+                            and crisis intervention services.</div>
+                        <div class="hotline-avail">✅ Available 24/7 · Call</div>
+                    </div>
+                    <div class="hotline-card">
+                        <div class="hotline-name">🧠 Fortis Stress Helpline</div>
+                        <div class="hotline-num">8376 804 102</div>
+                        <div class="hotline-desc">Free mental health support helpline by Fortis Healthcare for stress,
+                            anxiety, depression, and emotional wellbeing.</div>
+                        <div class="hotline-avail">✅ Available 24/7 · Call</div>
+                    </div>
+                </div>
+
+                <!-- CBT Tools -->
+                <div class="resource-section-title mb-md">🧠 Evidence-Based Coping Tools</div>
+                <div class="cbt-tool-grid mb-xl">
+
+                    <div class="cbt-tool" onclick="this.classList.toggle('expanded')">
+                        <div class="cbt-tool-icon">🌬️</div>
+                        <div class="cbt-tool-title">Box Breathing (4-4-4-4)</div>
+                        <div class="cbt-tool-desc">Navy SEAL technique for instant calm. Activates parasympathetic
+                            nervous system. Tap to expand.</div>
+                        <div class="expandable-content">
+                            <div class="breathing-animation" id="breatheCircle" onclick="toggleBreathing(event)">Tap to
+                                start</div>
+                            <p id="breatheLabel" style="text-align:center;font-weight:600;color:var(--brand-primary)">
+                                Press the circle above</p>
+                            <div
+                                style="margin-top:var(--space-md); padding:var(--space-md);background:var(--bg-glass);border-radius:var(--radius-md);">
+                                <strong>How to do it:</strong>
+                                <ol class="step-list" style="margin-top:8px;">
+                                    <li>Inhale slowly through your nose for <strong>4 counts</strong></li>
+                                    <li>Hold your breath for <strong>4 counts</strong></li>
+                                    <li>Exhale slowly through your mouth for <strong>4 counts</strong></li>
+                                    <li>Hold empty for <strong>4 counts</strong>. Repeat 4–6 times.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cbt-tool" onclick="this.classList.toggle('expanded')">
+                        <div class="cbt-tool-icon">🌍</div>
+                        <div class="cbt-tool-title">5-4-3-2-1 Grounding</div>
+                        <div class="cbt-tool-desc">Sensory grounding technique for anxiety and dissociation. Brings you
+                            into the present.</div>
+                        <div class="expandable-content">
+                            <p>Focus your attention on each sense, one at a time:</p>
+                            <ul class="step-list" style="margin-top:8px;">
+                                <li><strong>5 things you can SEE</strong> — Look around the room</li>
+                                <li><strong>4 things you can TOUCH</strong> — Feel different textures</li>
+                                <li><strong>3 things you can HEAR</strong> — Listen carefully</li>
+                                <li><strong>2 things you can SMELL</strong> — Any scents nearby?</li>
+                                <li><strong>1 thing you can TASTE</strong> — Your mouth right now</li>
+                            </ul>
+                            <p style="margin-top:var(--space-md);">This technique interrupts the anxiety feedback loop
+                                by anchoring your awareness in physical reality.</p>
+                        </div>
+                    </div>
+
+                    <div class="cbt-tool" onclick="this.classList.toggle('expanded')">
+                        <div class="cbt-tool-icon">💭</div>
+                        <div class="cbt-tool-title">Thought Record (CBT)</div>
+                        <div class="cbt-tool-desc">Challenge cognitive distortions by examining the evidence for and
+                            against your thoughts.</div>
+                        <div class="expandable-content">
+                            <p>When you notice a distressing thought, work through these questions:</p>
+                            <ul class="step-list" style="margin-top:8px;">
+                                <li>What is the <strong>automatic thought</strong>? Write it exactly as it appeared.
+                                </li>
+                                <li>What is the <strong>emotion</strong> and its intensity (0–100%)?</li>
+                                <li>What <strong>evidence supports</strong> this thought?</li>
+                                <li>What <strong>evidence contradicts</strong> this thought?</li>
+                                <li>What would you tell a <strong>close friend</strong> with this thought?</li>
+                                <li>Write a <strong>balanced alternative thought</strong> and re-rate the emotion.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="cbt-tool" onclick="this.classList.toggle('expanded')">
+                        <div class="cbt-tool-icon">📅</div>
+                        <div class="cbt-tool-title">Behavioral Activation</div>
+                        <div class="cbt-tool-desc">Break the depression-inactivity cycle by scheduling meaningful
+                            activities.</div>
+                        <div class="expandable-content">
+                            <p>Depression reduces motivation and pleasure. Behavioral Activation reverses this.</p>
+                            <ul class="step-list" style="margin-top:8px;">
+                                <li>Create a list of activities you used to enjoy or that give a sense of accomplishment
+                                </li>
+                                <li>Rate each activity for <strong>pleasure</strong> and <strong>mastery</strong> (0–10)
+                                </li>
+                                <li>Schedule <strong>at least one activity</strong> every day, starting small</li>
+                                <li>Do the activity even if you don't feel like it — mood follows action</li>
+                                <li>Record how you actually felt <strong>during and after</strong> — it's usually better
+                                    than predicted</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="cbt-tool" onclick="this.classList.toggle('expanded')">
+                        <div class="cbt-tool-icon">🙏</div>
+                        <div class="cbt-tool-title">Gratitude Practice</div>
+                        <div class="cbt-tool-desc">Shifts attention patterns. Proven to increase well-being within 2
+                            weeks of daily practice.</div>
+                        <div class="expandable-content">
+                            <p>Daily gratitude practice rewires the brain's attention toward positive stimuli over time.
+                            </p>
+                            <ul class="step-list" style="margin-top:8px;">
+                                <li>Every evening, write down <strong>3 specific things</strong> you're grateful for
+                                </li>
+                                <li>Be specific — not "family" but "my sister called to check on me today"</li>
+                                <li>Write about <strong>why</strong> each thing matters to you</li>
+                                <li>Savour the feeling for 20–30 seconds on each item</li>
+                                <li>Over time, try to notice good things <strong>in real time</strong> throughout your
+                                    day</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="cbt-tool" onclick="this.classList.toggle('expanded')">
+                        <div class="cbt-tool-icon">🚶</div>
+                        <div class="cbt-tool-title">Opposite Action (DBT)</div>
+                        <div class="cbt-tool-desc">From Dialectical Behavior Therapy — act opposite to the urge driven
+                            by a difficult emotion.</div>
+                        <div class="expandable-content">
+                            <p>When an emotion urges you toward an unhelpful behavior, do the opposite:</p>
+                            <ul class="step-list" style="margin-top:8px;">
+                                <li>Identify the <strong>emotion</strong> and its action urge (e.g., fear → avoid)</li>
+                                <li>Check if the emotion is <strong>justified</strong> and the action is effective</li>
+                                <li>If not, identify the <strong>opposite action</strong> (e.g., fear → approach)</li>
+                                <li>Act opposite <strong>all the way</strong>, including body posture and facial
+                                    expression</li>
+                                <li>Repeat until the emotion shifts</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Recommended Apps -->
+                <div class="resource-section-title mb-md">📱 Recommended Mental Health Apps</div>
+                <div class="card mb-xl">
+                    <div class="card-body">
+                        <div class="app-recommendations">
+                            <div class="app-row">
+                                <div class="app-icon">🤖</div>
+                                <div class="app-info">
+                                    <div class="app-name">Woebot</div>
+                                    <div class="app-desc">AI chatbot delivering CBT exercises. Clinically validated for
+                                        depression and anxiety reduction.</div>
+                                </div>
+                                <span class="app-badge">CBT</span>
+                            </div>
+                            <div class="app-row">
+                                <div class="app-icon">🧘</div>
+                                <div class="app-info">
+                                    <div class="app-name">Headspace</div>
+                                    <div class="app-desc">Guided meditation and mindfulness. Shown to reduce stress by
+                                        32% in 30 days.</div>
+                                </div>
+                                <span class="app-badge">Mindfulness</span>
+                            </div>
+                            <div class="app-row">
+                                <div class="app-icon">📖</div>
+                                <div class="app-info">
+                                    <div class="app-name">Daylio</div>
+                                    <div class="app-desc">Micro-journaling and mood tracking. Helps identify patterns
+                                        between activities and mood.</div>
+                                </div>
+                                <span class="app-badge">Mood Tracking</span>
+                            </div>
+                            <div class="app-row">
+                                <div class="app-icon">🛌</div>
+                                <div class="app-info">
+                                    <div class="app-name">Sleepio</div>
+                                    <div class="app-desc">CBT-I based sleep improvement program. Clinically validated
+                                        for insomnia.</div>
+                                </div>
+                                <span class="app-badge">Sleep</span>
+                            </div>
+                            <div class="app-row">
+                                <div class="app-icon">👥</div>
+                                <div class="app-info">
+                                    <div class="app-name">7 Cups</div>
+                                    <div class="app-desc">Online peer support and licensed therapy. Community of trained
+                                        emotional support listeners.</div>
+                                </div>
+                                <span class="app-badge">Peer Support</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Educational Articles -->
+                <div class="resource-section-title mb-md">📖 Understanding Your Mental Health</div>
+                <div class="grid-3 mb-xl">
+                    <div class="card">
+                        <div class="card-body">
+                            <div style="font-size:1.5rem;margin-bottom:8px;">🧠</div>
+                            <h4 style="font-size:0.9rem;margin-bottom:6px;">How Depression Affects the Brain</h4>
+                            <p style="font-size:0.78rem;color:var(--text-secondary);">Depression involves changes in
+                                neurotransmitters (serotonin, dopamine), neuroinflammation, and reduced hippocampal
+                                neurogenesis. Treatment reverses these changes.</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div style="font-size:1.5rem;margin-bottom:8px;">💊</div>
+                            <h4 style="font-size:0.9rem;margin-bottom:6px;">How Antidepressants Work</h4>
+                            <p style="font-size:0.78rem;color:var(--text-secondary);">SSRIs increase serotonin
+                                availability. SNRIs target serotonin and norepinephrine. Effects typically emerge after
+                                2-6 weeks. Work best combined with therapy.</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div style="font-size:1.5rem;margin-bottom:8px;">🏃</div>
+                            <h4 style="font-size:0.9rem;margin-bottom:6px;">Exercise as Antidepressant</h4>
+                            <p style="font-size:0.78rem;color:var(--text-secondary);">150 min/week of aerobic exercise
+                                is as effective as SSRIs for mild-to-moderate depression. Exercise increases BDNF,
+                                serotonin, and endocannabinoids.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('ax_user') || '{}');
+        const name = user.name || 'User';
+        if (!localStorage.getItem('ax_token')) window.location.href = 'index.html';
+        document.getElementById('sidebarName').textContent = name;
+        document.getElementById('sidebarAvatar').textContent = name[0].toUpperCase();
+
+        let breathePhase = null;
+        let breatheInterval = null;
+        const phases = [
+            { label: 'Inhale... 🌬️', duration: 4000 },
+            { label: 'Hold... ⏸️', duration: 4000 },
+            { label: 'Exhale... 💨', duration: 4000 },
+            { label: 'Hold... ⏸️', duration: 4000 },
+        ];
+
+        function toggleBreathing(e) {
+            e.stopPropagation();
+            const circle = document.getElementById('breatheCircle');
+            const label = document.getElementById('breatheLabel');
+
+            if (breatheInterval) {
+                clearInterval(breatheInterval);
+                breatheInterval = null;
+                circle.classList.remove('running');
+                circle.textContent = 'Tap to start';
+                label.textContent = 'Stopped. Tap to restart.';
+                return;
+            }
+
+            let phaseIndex = 0;
+            circle.classList.add('running');
+
+            function runPhase() {
+                const phase = phases[phaseIndex % phases.length];
+                label.textContent = phase.label;
+                circle.textContent = phase.label.split(' ')[0];
+                phaseIndex++;
+            }
+
+            runPhase();
+            breatheInterval = setInterval(runPhase, 4000);
+        }
+    </script>
+
+
+    <!-- Mobile Navigation & PWA Install -->
+    <script>
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const isOpen = sidebar.classList.toggle('open');
+            if (isOpen) {
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close sidebar when clicking a nav link on mobile
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleSidebar();
+                }
+            });
+        });
+
+        // PWA Install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (!localStorage.getItem('pwa_install_dismissed')) {
+                setTimeout(() => {
+                    document.getElementById('installBanner')?.classList.add('show');
+                }, 3000);
+            }
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(choice => {
+                    if (choice.outcome === 'accepted') {
+                        console.log('[PWA] App installed');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installBanner')?.classList.remove('show');
+                });
+            }
+        }
+
+        function dismissInstall() {
+            document.getElementById('installBanner')?.classList.remove('show');
+            localStorage.setItem('pwa_install_dismissed', 'true');
+        }
+    </script>
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+                    .catch(err => console.warn('[PWA] SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

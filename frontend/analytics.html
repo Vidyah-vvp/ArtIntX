@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#7C6AF4" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ArtIntX" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-512.png" />
+    <title>Analytics — ArtIntX</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .chart-card .card-header {
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chart-card .card-body {
+            padding: var(--space-lg);
+        }
+
+        .tall-chart {
+            height: 280px;
+        }
+
+        .range-selector {
+            display: flex;
+            gap: 4px;
+        }
+
+        .range-btn {
+            padding: 4px 12px;
+            background: none;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-full);
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-family: inherit;
+        }
+
+        .range-btn.active {
+            background: var(--brand-primary);
+            border-color: var(--brand-primary);
+            color: white;
+        }
+
+        .phq-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: 10px var(--space-md);
+            background: var(--bg-glass);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-sm);
+            transition: background var(--transition-fast);
+        }
+
+        .phq-row:hover {
+            background: var(--bg-glass-hover);
+        }
+
+        .phq-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            width: 100px;
+            flex-shrink: 0;
+        }
+
+        .phq-bar-wrap {
+            flex: 1;
+            height: 8px;
+            background: var(--bg-glass);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .phq-bar-fill {
+            height: 100%;
+            border-radius: var(--radius-full);
+        }
+
+        .phq-score-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            width: 60px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="orb orb-1"></div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Mobile Menu -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- PWA Install Banner -->
+    <div class="pwa-install-banner" id="installBanner">
+        <div class="pwa-install-banner-icon">🧠</div>
+        <div class="pwa-install-banner-text">
+            <div class="pwa-install-banner-title">Install ArtIntX</div>
+            <div class="pwa-install-banner-desc">Add to home screen for the full app experience</div>
+        </div>
+        <button class="pwa-install-btn" id="installBtn" onclick="installPWA()">Install</button>
+        <button class="pwa-install-close" onclick="dismissInstall()">✕</button>
+    </div>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🧠</div><span class="sidebar-logo-text">ArtIntX</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Overview</div>
+                <a class="nav-item" href="dashboard.html"><span class="nav-item-icon">🏠</span> Dashboard</a>
+                <a class="nav-item" href="chatbot.html">
+                    <span class="nav-item-icon">🩺</span> Symptom Checker
+                </a>
+                <div class="nav-section-label">Health Monitoring</div>
+                <a class="nav-item" href="mood.html"><span class="nav-item-icon">📊</span> Mood Tracker</a>
+                <a class="nav-item" href="reminders.html"><span class="nav-item-icon">💊</span> Medicine Reminders</a>
+                <a class="nav-item" href="assessment.html"><span class="nav-item-icon">📋</span> PHQ-9 Assessment</a>
+                <a class="nav-item active" href="analytics.html"><span class="nav-item-icon">📈</span> Analytics</a>
+                <div class="nav-section-label">AI Insights</div>
+                <a class="nav-item" href="risk.html"><span class="nav-item-icon">⚠️</span> Risk Dashboard</a>
+                <a class="nav-item" href="resources.html"><span class="nav-item-icon">📚</span> Resources</a>
+                <div class="nav-section-label">Account</div>
+                <a class="nav-item" href="profile.html"><span class="nav-item-icon">👤</span> My Profile</a>
+            </nav>
+            <div class="sidebar-user">
+                <div class="user-avatar" id="sidebarAvatar">A</div>
+                <div class="user-info">
+                    <div class="user-name" id="sidebarName">User</div>
+                    <div class="user-status">Active now</div>
+                </div>
+                <button class="logout-btn" onclick="localStorage.clear();window.location.href='index.html'">⬡</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>📈 Advanced Analytics</h1>
+                <p>Data-driven insights into your mental health journey over time.</p>
+            </div>
+
+            <div class="page-content page">
+
+                <!-- Mood & Energy Insights -->
+                <div class="grid-2 mb-xl">
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3>🎭 Mood Stability</h3>
+                            <div class="range-selector">
+                                <button class="range-btn active">14D</button>
+                                <button class="range-btn">30D</button>
+                                <button class="range-btn">90D</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="tall-chart">
+                                <canvas id="moodChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3>⚡ Energy vs. Anxiety</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="tall-chart">
+                                <canvas id="energyAnxietyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PHQ-9 Progress -->
+                <div class="grid-2 mb-xl" style="grid-template-columns: 1fr 1.3fr;">
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3>📋 PHQ-9 History</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="phqHistoryList">
+                                <!-- Loaded by JS -->
+                                <p class="text-xs text-muted">No assessments taken yet.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3>📉 Depression Severity Trend</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="tall-chart">
+                                <canvas id="phqTrendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sleep Correlation -->
+                <div class="chart-card">
+                    <div class="card-header">
+                        <h3>🛌 Sleep & Mood Correlation</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="height: 200px;">
+                            <canvas id="sleepMoodChart"></canvas>
+                        </div>
+                        <p class="text-xs text-muted mt-md">Analysis suggests that getting <strong id="optimalSleep">7.5
+                                hours</strong> of sleep correlates with your highest mood scores.</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="api-config.js"></script>
+    <script>
+        const API = window.API_URL;
+        const token = localStorage.getItem('ax_token');
+        const user = JSON.parse(localStorage.getItem('ax_user') || '{}');
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+        if (!token) window.location.href = 'index.html';
+
+        document.getElementById('sidebarName').textContent = user.name || 'User';
+
+        Chart.defaults.color = '#94A3B8';
+        Chart.defaults.font.family = 'Inter';
+
+        async function loadAnalytics() {
+            try {
+                const [moodRes, phqRes] = await Promise.all([
+                    fetch(`${API}/analytics/mood-trend?days=30`, { headers }),
+                    fetch(`${API}/analytics/phq9-trend`, { headers })
+                ]);
+
+                const moodData = await moodRes.json();
+                const phqData = await phqRes.json();
+
+                renderMoodCharts(moodData);
+                renderPHQCharts(phqData);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderMoodCharts(data) {
+            const labels = data.map(d => new Date(d.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }));
+
+            new Chart(document.getElementById('moodChart'), {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Avg Mood',
+                        data: data.map(d => d.avg_mood),
+                        borderColor: '#7C6AF4',
+                        backgroundColor: 'rgba(124, 106, 244, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { maintainAspectRatio: false }
+            });
+
+            new Chart(document.getElementById('energyAnxietyChart'), {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Energy', data: data.map(d => d.avg_energy || 0), borderColor: '#5EEAD4', tension: 0.4 },
+                        { label: 'Anxiety', data: data.map(d => d.avg_anxiety || 0), borderColor: '#F87171', tension: 0.4 }
+                    ]
+                },
+                options: { maintainAspectRatio: false }
+            });
+
+            new Chart(document.getElementById('sleepMoodChart'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{ label: 'Sleep Hours', data: data.map(d => d.avg_sleep || 0), backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 4 }]
+                },
+                options: { maintainAspectRatio: false }
+            });
+        }
+
+        function renderPHQCharts(data) {
+            if (!data.length) return;
+            const labels = data.map(d => new Date(d.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }));
+
+            new Chart(document.getElementById('phqTrendChart'), {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Score',
+                        data: data.map(d => d.total_score),
+                        borderColor: '#FBBF24',
+                        pointBackgroundColor: '#FBBF24',
+                        borderWidth: 3
+                    }]
+                },
+                options: { maintainAspectRatio: false }
+            });
+
+            const list = document.getElementById('phqHistoryList');
+            list.innerHTML = data.reverse().map(d => `
+        <div class="phq-row">
+          <div class="phq-date">${new Date(d.date).toLocaleDateString()}</div>
+          <div class="phq-bar-wrap">
+            <div class="phq-bar-fill" style="width:${(d.total_score / 27) * 100}%; background:${getPHQColor(d.total_score)}"></div>
+          </div>
+          <div class="phq-score-label" style="color:${getPHQColor(d.total_score)}">${d.total_score}</div>
+        </div>
+      `).join('');
+        }
+
+        function getPHQColor(score) {
+            if (score <= 4) return '#4ADE80';
+            if (score <= 9) return '#FBBF24';
+            if (score <= 14) return '#FB923C';
+            return '#F87171';
+        }
+
+        loadAnalytics();
+    </script>
+
+    <!-- Mobile Navigation & PWA Install -->
+    <script>
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const isOpen = sidebar.classList.toggle('open');
+            if (isOpen) {
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close sidebar when clicking a nav link on mobile
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleSidebar();
+                }
+            });
+        });
+
+        // PWA Install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (!localStorage.getItem('pwa_install_dismissed')) {
+                setTimeout(() => {
+                    document.getElementById('installBanner')?.classList.add('show');
+                }, 3000);
+            }
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(choice => {
+                    if (choice.outcome === 'accepted') {
+                        console.log('[PWA] App installed');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installBanner')?.classList.remove('show');
+                });
+            }
+        }
+
+        function dismissInstall() {
+            document.getElementById('installBanner')?.classList.remove('show');
+            localStorage.setItem('pwa_install_dismissed', 'true');
+        }
+    </script>
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+                    .catch(err => console.warn('[PWA] SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

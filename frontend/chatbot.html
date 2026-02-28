@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#7C6AF4" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ArtIntX" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-512.png" />
+    <title>AI Symptom Checker — ArtIntX</title>
+    <meta name="description" content="24/7 AI healthcare chatbot to check symptoms and provide clinical guidance." />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .chat-page {
+            height: calc(100vh - 73px);
+            display: flex;
+            flex-direction: column;
+            padding: var(--space-lg) var(--space-2xl);
+            gap: var(--space-md);
+        }
+
+        .chat-disclaimer {
+            background: rgba(94, 234, 212, 0.08);
+            border: 1px solid rgba(94, 234, 212, 0.2);
+            border-radius: var(--radius-md);
+            padding: 10px 16px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .session-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-left: auto;
+        }
+
+        .session-badge {
+            background: rgba(124, 106, 244, 0.12);
+            border: 1px solid var(--border-accent);
+            border-radius: var(--radius-full);
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            color: var(--brand-primary);
+            font-weight: 600;
+        }
+
+        .chat-tools {
+            display: flex;
+            gap: var(--space-sm);
+            padding: 8px var(--space-lg);
+            border-top: 1px solid var(--border-subtle);
+            flex-wrap: wrap;
+        }
+
+        .tool-chip {
+            padding: 6px 14px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+        }
+
+        .tool-chip:hover {
+            border-color: var(--border-accent);
+            color: var(--brand-primary);
+            background: rgba(124, 106, 244, 0.1);
+        }
+
+        .crisis-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-elevated);
+            border: 1px solid rgba(248, 113, 113, 0.4);
+            border-radius: var(--radius-xl);
+            padding: var(--space-2xl);
+            z-index: 1000;
+            max-width: 480px;
+            width: calc(100% - 2rem);
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            display: none;
+        }
+
+        .crisis-popup.show {
+            display: block;
+            animation: pageFadeIn 0.3s ease;
+        }
+
+        .crisis-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            backdrop-filter: blur(4px);
+            display: none;
+        }
+
+        .crisis-overlay.show {
+            display: block;
+        }
+
+        .chat-header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .lang-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            cursor: pointer;
+            outline: none;
+            transition: all var(--transition-fast);
+        }
+
+        .lang-select:hover {
+            border-color: var(--border-accent);
+        }
+
+        .voice-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 8px;
+            color: var(--text-muted);
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .voice-btn.recording {
+            color: var(--brand-danger);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.1);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .tts-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 4px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .tts-btn:hover {
+            opacity: 1;
+            color: var(--brand-primary);
+        }
+
+        .message-bubble strong {
+            color: var(--text-primary);
+        }
+
+        .message.assistant .message-bubble em {
+            color: var(--brand-secondary);
+        }
+
+        .chat-stats {
+            display: flex;
+            gap: var(--space-md);
+            padding: 8px var(--space-lg);
+            border-bottom: 1px solid var(--border-subtle);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-stat {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .chat-stat strong {
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="orb orb-1"></div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Crisis Overlay -->
+    <div class="crisis-overlay" id="crisisOverlay" onclick="closeCrisisModal()"></div>
+    <div class="crisis-popup" id="crisisPopup">
+        <div style="font-size:3rem;margin-bottom:var(--space-md)">🚨</div>
+        <h3 style="color:var(--brand-danger);margin-bottom:var(--space-sm)">Immediate Support Available</h3>
+        <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:var(--space-xl)">It looks like you may be
+            in crisis. Please reach out to a professional now — they want to help you.</p>
+        <div style="display:flex;flex-direction:column;gap:var(--space-sm);margin-bottom:var(--space-xl)">
+            <a href="tel:9999666555" class="btn btn-danger btn-full btn-lg">📞 Call 9999 666 555 (Vandrevala
+                Foundation)</a>
+            <a href="tel:9820466726" class="btn btn-secondary btn-full">🙏 Call 9820 466 726 (AASRA)</a>
+            <a href="tel:112" class="btn btn-secondary btn-full">🚑 Call 112 Emergency</a>
+        </div>
+        <button class="btn btn-ghost btn-full" onclick="closeCrisisModal()">I'm safe — continue chatting</button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- PWA Install Banner -->
+    <div class="pwa-install-banner" id="installBanner">
+        <div class="pwa-install-banner-icon">🧠</div>
+        <div class="pwa-install-banner-text">
+            <div class="pwa-install-banner-title">Install ArtIntX</div>
+            <div class="pwa-install-banner-desc">Add to home screen for the full app experience</div>
+        </div>
+        <button class="pwa-install-btn" id="installBtn" onclick="installPWA()">Install</button>
+        <button class="pwa-install-close" onclick="dismissInstall()">✕</button>
+    </div>
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🧠</div>
+                <span class="sidebar-logo-text">ArtIntX</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Overview</div>
+                <a class="nav-item" href="dashboard.html"><span class="nav-item-icon">🏠</span> Dashboard</a>
+                <a class="nav-item active" href="chatbot.html"><span class="nav-item-icon">🩺</span> Symptom Checker</a>
+                <div class="nav-section-label">Health Monitoring</div>
+                <a class="nav-item" href="mood.html"><span class="nav-item-icon">📊</span> Mood Tracker</a>
+                <a class="nav-item" href="reminders.html"><span class="nav-item-icon">💊</span> Medicine Reminders</a>
+                <a class="nav-item" href="assessment.html"><span class="nav-item-icon">📋</span> PHQ-9 Assessment</a>
+                <a class="nav-item" href="analytics.html"><span class="nav-item-icon">📈</span> Analytics</a>
+                <div class="nav-section-label">AI Insights</div>
+                <a class="nav-item" href="risk.html"><span class="nav-item-icon">⚠️</span> Risk Dashboard</a>
+                <a class="nav-item" href="resources.html"><span class="nav-item-icon">📚</span> Resources</a>
+                <div class="nav-section-label">Account</div>
+                <a class="nav-item" href="profile.html"><span class="nav-item-icon">👤</span> My Profile</a>
+            </nav>
+            <div class="sidebar-user">
+                <div class="user-avatar" id="sidebarAvatar">A</div>
+                <div class="user-info">
+                    <div class="user-name" id="sidebarName">User</div>
+                    <div class="user-status">Active now</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">⬡</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                    <h1>AI Symptom Checker</h1>
+                    <p>Confidential · Healthcare Guidance · Available 24/7</p>
+                </div>
+                <div class="session-info">
+                    <span class="session-badge" id="sessionBadge">Session #1</span>
+                    <button class="btn btn-sm btn-secondary" onclick="clearChat()">+ New Session</button>
+                </div>
+            </div>
+
+            <div class="chat-page">
+                <div class="chat-disclaimer">
+                    <span>🛡️</span>
+                    <span><strong>Confidential & Informative.</strong> This AI provides general healthcare guidance and
+                        clinical symptom checking. It
+                        does not replace professional medical diagnosis. Medical crisis keywords trigger immediate
+                        emergency
+                        resources.</span>
+                </div>
+
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <div class="chat-ai-avatar">🤖</div>
+                        <div class="chat-ai-info">
+                            <h4>Aria — Your Healthcare Companion</h4>
+                            <div class="chat-ai-status">Online · Healthcare AI · Clinical-Aware</div>
+                        </div>
+                        <div class="chat-header-actions" style="margin-left:auto;">
+                            <select id="langSelect" class="lang-select" onchange="changeLanguage()">
+                                <option value="en">English (US)</option>
+                                <option value="es">Español (ES)</option>
+                                <option value="fr">Français (FR)</option>
+                                <option value="de">Deutsch (DE)</option>
+                                <option value="hi">हिन्दी (IN)</option>
+                                <option value="zh">中文 (CN)</option>
+                                <option value="ar">العربية (AR)</option>
+                            </select>
+                            <button class="btn btn-sm btn-ghost" id="moodCheckBtn" onclick="quickMoodCheck()"
+                                title="Quick mood check-in">😊 Check-in</button>
+                        </div>
+                    </div>
+
+                    <div class="chat-stats" id="chatStats">
+                        <div class="chat-stat">💬 Messages: <strong id="msgCount">0</strong></div>
+                        <div class="chat-stat">🕐 Session: <strong id="sessionDur">0:00</strong></div>
+                        <div class="chat-stat">😊 Sentiment: <strong id="lastSentiment">—</strong></div>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Messages rendered here -->
+                    </div>
+
+                    <div class="chat-tools" id="chatTools">
+                        <span
+                            style="font-size:0.72rem;color:var(--text-muted);align-self:center;margin-right:4px;">Quick
+                            prompts:</span>
+                        <button class="tool-chip" onclick="sendQuick('I have a severe headache')">🤕 Headache</button>
+                        <button class="tool-chip" onclick="sendQuick('I am feeling dizzy and nauseous')">🤢
+                            Nauseous</button>
+                        <button class="tool-chip" onclick="sendQuick('My back hurts really badly')">⚡ Back
+                            pain</button>
+                        <button class="tool-chip" onclick="sendQuick('I have a sore throat and a fever')">🤒
+                            Fever & Throat</button>
+                        <button class="tool-chip"
+                            onclick="sendQuick('I feel completely exhausted and tired all the time')">🔋
+                            Exhausted</button>
+                        <button class="tool-chip" onclick="sendQuick('Help me with a quick breathing exercise')">🌿
+                            Breathing</button>
+                        <button class="tool-chip" onclick="sendQuick('I need checking for a general symptom')">🩺
+                            General Check</button>
+                    </div>
+
+                    <div class="chat-input-container">
+                        <textarea class="chat-input" id="chatInput"
+                            placeholder="Share what's on your mind... (Shift+Enter for new line)" rows="1"
+                            onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+                        <button class="voice-btn" id="voiceInputBtn" onclick="toggleVoiceInput()"
+                            title="Voice Input">🎤</button>
+                        <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()"
+                            title="Send message">➤</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="api-config.js"></script>
+    <script>
+        const API = window.API_URL;
+        const token = localStorage.getItem('ax_token');
+        const user = JSON.parse(localStorage.getItem('ax_user') || '{}');
+        if (!token) window.location.href = 'index.html';
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+        let currentSessionId = null;
+        let messageCount = 0;
+        let sessionStart = Date.now();
+        let sessionTimer;
+        let currentLanguage = 'en';
+
+        // Voice Support
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        let isRecording = false;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                document.getElementById('chatInput').value = text;
+                toggleVoiceInput();
+                sendMessage();
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error', event.error);
+                toggleVoiceInput();
+                showToast('Voice input error: ' + event.error, 'error');
+            };
+        }
+
+        function toggleVoiceInput() {
+            if (!recognition) {
+                showToast('Browser does not support voice input', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('voiceInputBtn');
+            if (isRecording) {
+                recognition.stop();
+                isRecording = false;
+                btn.classList.remove('recording');
+                btn.textContent = '🎤';
+            } else {
+                recognition.lang = getLangCode();
+                recognition.start();
+                isRecording = true;
+                btn.classList.add('recording');
+                btn.textContent = '⏹️';
+            }
+        }
+
+        function getLangCode() {
+            const map = {
+                'en': 'en-US',
+                'es': 'es-ES',
+                'fr': 'fr-FR',
+                'de': 'de-DE',
+                'hi': 'hi-IN',
+                'zh': 'zh-CN',
+                'ar': 'ar-SA'
+            };
+            return map[currentLanguage] || 'en-US';
+        }
+
+        async function changeLanguage() {
+            currentLanguage = document.getElementById('langSelect').value;
+            showToast('Language changed to ' + currentLanguage.toUpperCase(), 'info');
+
+            // Translate the initial welcome message if it's the only one
+            const messages = document.getElementById('chatMessages').children;
+            if (messages.length === 1 && messages[0].classList.contains('assistant')) {
+                clearChat(); // This will re-trigger welcome message with new language logic
+            }
+
+            // Translate UI elements like placeholders and quick prompts
+            translateUI();
+        }
+
+        async function translateUI() {
+            if (currentLanguage === 'en') return;
+
+            const elements = document.querySelectorAll('.tool-chip, #chatInput, .chat-ai-status, .chat-disclaimer span:last-child');
+            for (const el of elements) {
+                const text = el.tagName === 'TEXTAREA' ? el.placeholder : el.textContent;
+                if (!text) continue;
+
+                try {
+                    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${currentLanguage}&dt=t&q=${encodeURIComponent(text)}`);
+                    const data = await res.json();
+                    if (data[0]) {
+                        let translated = '';
+                        data[0].forEach(item => { if (item[0]) translated += item[0]; });
+                        if (el.tagName === 'TEXTAREA') el.placeholder = translated;
+                        else el.textContent = translated;
+                    }
+                } catch (e) {
+                    console.error('UI translation error', e);
+                }
+            }
+        }
+
+        function readAloud(text) {
+            if (!window.speechSynthesis) {
+                showToast('Speech synthesis not supported', 'warning');
+                return;
+            }
+            // Cancel any ongoing speech
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = getLangCode();
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+        function showToast(msg, type = 'info') {
+            const c = document.getElementById('toastContainer');
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.innerHTML = msg;
+            c.appendChild(t);
+            setTimeout(() => { t.style.animation = 'toastOut 0.3s ease forwards'; setTimeout(() => t.remove(), 300); }, 4000);
+        }
+
+        // Setup sidebar
+        const name = user.name || 'User';
+        document.getElementById('sidebarName').textContent = name;
+        document.getElementById('sidebarAvatar').textContent = name[0].toUpperCase();
+
+        // Session timer
+        function startTimer() {
+            sessionTimer = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+                const m = Math.floor(elapsed / 60);
+                const s = elapsed % 60;
+                document.getElementById('sessionDur').textContent = `${m}:${s.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function formatMessage(content) {
+            if (typeof marked !== 'undefined') {
+                return marked.parse(content, { breaks: true, gfm: true });
+            }
+            return content.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>');
+        }
+
+        function appendMessage(role, content, sentiment, crisisFlag, timestamp) {
+            const messagesEl = document.getElementById('chatMessages');
+            const msgEl = document.createElement('div');
+            const time = timestamp ? new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const avatarContent = role === 'user' ? (name[0] || 'U') : '🤖';
+            msgEl.className = `message ${role}${crisisFlag ? ' crisis' : ''}`;
+
+            let ttsButton = '';
+            if (role === 'assistant') {
+                // Strip markdown for TTS
+                const cleanText = content.replace(/[#*`]/g, '');
+                ttsButton = `<button class="tts-btn" onclick="readAloud(\`${cleanText.replace(/`/g, '\\`').replace(/\n/g, ' ')}\`)" title="Read Aloud">🔊 Listen</button>`;
+            }
+
+            msgEl.innerHTML = `
+      <div class="message-avatar">${avatarContent}</div>
+      <div>
+        <div class="message-bubble">${formatMessage(content)}</div>
+        <div class="message-time">${time}${sentiment && sentiment !== 'bot' ? ` · ${sentiment}` : ''} ${ttsButton}</div>
+      </div>`;
+
+            messagesEl.appendChild(msgEl);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+
+            if (crisisFlag) {
+                setTimeout(() => {
+                    document.getElementById('crisisOverlay').classList.add('show');
+                    document.getElementById('crisisPopup').classList.add('show');
+                }, 1000);
+            }
+
+            return msgEl;
+        }
+
+        function showTyping() {
+            const messagesEl = document.getElementById('chatMessages');
+            const t = document.createElement('div');
+            t.id = 'typingIndicator';
+            t.className = 'message assistant';
+            t.innerHTML = `
+      <div class="message-avatar">🤖</div>
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>`;
+            messagesEl.appendChild(t);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function removeTyping() {
+            const t = document.getElementById('typingIndicator');
+            if (t) t.remove();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const content = input.value.trim();
+            if (!content) return;
+
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            input.value = '';
+            input.style.height = 'auto';
+
+            // Show user message
+            appendMessage('user', content, null, false);
+            messageCount++;
+            document.getElementById('msgCount').textContent = messageCount;
+            showTyping();
+
+            try {
+                const res = await fetch(`${API}/chat/message`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({
+                        content,
+                        session_id: currentSessionId,
+                        lang: currentLanguage
+                    }),
+                });
+                const data = await res.json();
+                removeTyping();
+
+                if (!res.ok) { showToast(data.error || 'Error sending message', 'error'); }
+                else {
+                    currentSessionId = data.session_id;
+                    appendMessage('assistant', data.response, data.sentiment, data.crisisFlag);
+                    messageCount++;
+                    document.getElementById('msgCount').textContent = messageCount;
+
+                    const sentimentMap = { positive: '😊 Positive', negative: '😔 Negative', neutral: '😐 Neutral', crisis: '🚨 Crisis' };
+                    document.getElementById('lastSentiment').textContent = sentimentMap[data.sentiment] || data.sentiment;
+                }
+            } catch (err) {
+                removeTyping();
+                showToast('Connection error. Is the backend running?', 'error');
+            }
+
+            sendBtn.disabled = false;
+            input.focus();
+        }
+
+        function sendQuick(text) {
+            document.getElementById('chatInput').value = text;
+            sendMessage();
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        function quickMoodCheck() {
+            sendQuick('I want to do a quick mood check-in');
+        }
+
+        function closeCrisisModal() {
+            document.getElementById('crisisOverlay').classList.remove('show');
+            document.getElementById('crisisPopup').classList.remove('show');
+        }
+
+        async function clearChat() {
+            currentSessionId = null;
+            messageCount = 0;
+            sessionStart = Date.now();
+            document.getElementById('chatMessages').innerHTML = '';
+            document.getElementById('msgCount').textContent = '0';
+            document.getElementById('lastSentiment').textContent = '—';
+
+            // Count sessions and update badge
+            try {
+                const res = await fetch(`${API}/chat/sessions`, { headers });
+                const sessions = await res.json();
+                document.getElementById('sessionBadge').textContent = `Session #${sessions.length + 1}`;
+            } catch (e) { }
+
+            // Re-show greeting
+            showWelcomeMessage();
+            showToast('New session started 🌱', 'success');
+        }
+
+        async function showWelcomeMessage() {
+            const firstName = name.split(' ')[0];
+            let msg = `Hello ${firstName}! 🩺 I'm Aria, your AI healthcare and symptom checker companion.\n\nI'm here to listen, assess your physical symptoms, and guide you using evidence-based clinical healthcare protocols. Everything you share here is confidential.\n\n**What symptoms or concerns can I help you with today?** You can also use the quick prompts below to get started.`;
+
+            if (currentLanguage !== 'en') {
+                try {
+                    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${currentLanguage}&dt=t&q=${encodeURIComponent(msg)}`);
+                    const data = await res.json();
+                    if (data[0]) {
+                        msg = '';
+                        data[0].forEach(item => { if (item[0]) msg += item[0]; });
+                    }
+                } catch (e) { }
+            }
+            appendMessage('assistant', msg, 'bot', false);
+        }
+
+        async function loadChatHistory() {
+            try {
+                const res = await fetch(`${API}/chat/history?limit=100`, { headers });
+                const messages = await res.json();
+
+                if (messages.length === 0) {
+                    showWelcomeMessage();
+                    return;
+                }
+
+                // Group by session — show last session
+                const sessionMessages = messages.filter(m => m.session_id === messages[messages.length - 1].session_id);
+                currentSessionId = sessionMessages[0]?.session_id;
+
+                sessionMessages.forEach(m => {
+                    appendMessage(m.role, m.content, m.sentiment, m.crisis_flag, m.created_at);
+                    if (m.role === 'user') messageCount++;
+                });
+
+                document.getElementById('msgCount').textContent = messageCount;
+
+                // Update session badge
+                const sessRes = await fetch(`${API}/chat/sessions`, { headers });
+                const sessions = await sessRes.json();
+                document.getElementById('sessionBadge').textContent = `Session #${sessions.length}`;
+
+            } catch (err) {
+                showWelcomeMessage();
+            }
+        }
+
+        loadChatHistory();
+        startTimer();
+    </script>
+
+
+    <!-- Mobile Navigation & PWA Install -->
+    <script>
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const isOpen = sidebar.classList.toggle('open');
+            if (isOpen) {
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close sidebar when clicking a nav link on mobile
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleSidebar();
+                }
+            });
+        });
+
+        // PWA Install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (!localStorage.getItem('pwa_install_dismissed')) {
+                setTimeout(() => {
+                    document.getElementById('installBanner')?.classList.add('show');
+                }, 3000);
+            }
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(choice => {
+                    if (choice.outcome === 'accepted') {
+                        console.log('[PWA] App installed');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installBanner')?.classList.remove('show');
+                });
+            }
+        }
+
+        function dismissInstall() {
+            document.getElementById('installBanner')?.classList.remove('show');
+            localStorage.setItem('pwa_install_dismissed', 'true');
+        }
+    </script>
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+                    .catch(err => console.warn('[PWA] SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

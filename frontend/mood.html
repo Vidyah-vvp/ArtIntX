@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#7C6AF4" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ArtIntX" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-512.png" />
+    <title>Mood Tracker — ArtIntX</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Mobile Menu -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- PWA Install Banner -->
+    <div class="pwa-install-banner" id="installBanner">
+        <div class="pwa-install-banner-icon">🧠</div>
+        <div class="pwa-install-banner-text">
+            <div class="pwa-install-banner-title">Install ArtIntX</div>
+            <div class="pwa-install-banner-desc">Add to home screen for the full app experience</div>
+        </div>
+        <button class="pwa-install-btn" id="installBtn" onclick="installPWA()">Install</button>
+        <button class="pwa-install-close" onclick="dismissInstall()">✕</button>
+    </div>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🧠</div><span class="sidebar-logo-text">ArtIntX</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Overview</div>
+                <a class="nav-item" href="dashboard.html"><span class="nav-item-icon">🏠</span> Dashboard</a>
+                <a class="nav-item" href="chatbot.html">
+                    <span class="nav-item-icon">🩺</span> Symptom Checker
+                </a>
+                <div class="nav-section-label">Health Monitoring</div>
+                <a class="nav-item active" href="mood.html"><span class="nav-item-icon">📊</span> Mood Tracker</a>
+                <a class="nav-item" href="reminders.html"><span class="nav-item-icon">💊</span> Medicine Reminders</a>
+                <a class="nav-item" href="assessment.html"><span class="nav-item-icon">📋</span> PHQ-9 Assessment</a>
+                <a class="nav-item" href="analytics.html"><span class="nav-item-icon">📈</span> Analytics</a>
+                <div class="nav-section-label">AI Insights</div>
+                <a class="nav-item" href="risk.html"><span class="nav-item-icon">⚠️</span> Risk Dashboard</a>
+                <a class="nav-item" href="resources.html"><span class="nav-item-icon">📚</span> Resources</a>
+                <div class="nav-section-label">Account</div>
+                <a class="nav-item" href="profile.html"><span class="nav-item-icon">👤</span> My Profile</a>
+            </nav>
+            <div class="sidebar-user">
+                <div class="user-avatar" id="sidebarAvatar">A</div>
+                <div class="user-info">
+                    <div class="user-name" id="sidebarName">User</div>
+                    <div class="user-status">Active now</div>
+                </div>
+                <button class="logout-btn" onclick="localStorage.clear();window.location.href='index.html'">⬡</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>📊 Mood Tracker</h1>
+                <p>Log how you're feeling. Patterns help predict and prevent relapses.</p>
+            </div>
+
+            <div class="page-content page">
+                <div class="grid-2 mb-xl" style="grid-template-columns: 1.4fr 1fr; align-items: start;">
+
+                    <!-- Log Form -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Log Today's Mood</h3><span class="text-xs text-muted" id="todayDate"></span>
+                        </div>
+                        <div class="card-body">
+                            <form id="moodForm" onsubmit="submitMood(event)">
+
+                                <!-- Mood Score -->
+                                <div class="form-group mb-lg">
+                                    <label class="form-label">Overall Mood</label>
+                                    <div class="mood-value-display" id="moodDisplay">5</div>
+                                    <div class="mood-slider-container">
+                                        <input class="mood-slider" type="range" id="moodScore" min="1" max="10"
+                                            value="5" oninput="updateMoodDisplay()" style="--track-fill: 50%;" />
+                                        <div class="mood-scale-labels">
+                                            <span>😞 Very Low</span>
+                                            <span>😐 Neutral</span>
+                                            <span>😄 Excellent</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mood-form-grid mb-lg">
+                                    <!-- Energy -->
+                                    <div class="form-group">
+                                        <label class="form-label">Energy Level <span id="energyVal">5</span>/10</label>
+                                        <input class="mood-slider" type="range" id="energyLevel" min="1" max="10"
+                                            value="5"
+                                            oninput="document.getElementById('energyVal').textContent=this.value" />
+                                    </div>
+                                    <!-- Anxiety -->
+                                    <div class="form-group">
+                                        <label class="form-label">Anxiety Level <span
+                                                id="anxietyVal">3</span>/10</label>
+                                        <input class="mood-slider" type="range" id="anxietyLevel" min="1" max="10"
+                                            value="3"
+                                            oninput="document.getElementById('anxietyVal').textContent=this.value" />
+                                    </div>
+                                </div>
+
+                                <!-- Sleep -->
+                                <div class="form-group mb-lg">
+                                    <label class="form-label" for="sleepHours">Hours of Sleep Last Night</label>
+                                    <input class="form-input" type="number" id="sleepHours" min="0" max="24" step="0.5"
+                                        placeholder="7.5" />
+                                </div>
+
+                                <!-- Activities -->
+                                <div class="form-group mb-lg">
+                                    <label class="form-label">Activities Today (select all that apply)</label>
+                                    <div class="activity-tags" id="activityTags">
+                                        <span class="activity-tag" onclick="toggleActivity(this)" data-val="exercise">🏃
+                                            Exercise</span>
+                                        <span class="activity-tag" onclick="toggleActivity(this)"
+                                            data-val="meditation">🧘 Meditation</span>
+                                        <span class="activity-tag" onclick="toggleActivity(this)" data-val="social">👥
+                                            Socializing</span>
+                                        <span class="activity-tag" onclick="toggleActivity(this)" data-val="creative">🎨
+                                            Creative</span>
+                                        <span class="activity-tag" onclick="toggleActivity(this)" data-val="work">💼
+                                            Work</span>
+                                        <span class="activity-tag" onclick="toggleActivity(this)" data-val="nature">🌿
+                                            Nature</span>
+                                        <span class="activity-tag" onclick="toggleActivity(this)" data-val="reading">📖
+                                            Reading</span>
+                                        <span class="activity-tag" onclick="toggleActivity(this)" data-val="therapy">🛋️
+                                            Therapy</span>
+                                        <span class="activity-tag" onclick="toggleActivity(this)" data-val="hobbies">🎮
+                                            Hobbies</span>
+                                        <span class="activity-tag" onclick="toggleActivity(this)" data-val="music">🎵
+                                            Music</span>
+                                    </div>
+                                </div>
+
+                                <!-- Notes -->
+                                <div class="form-group mb-xl">
+                                    <label class="form-label" for="moodNotes">Journal Notes (optional)</label>
+                                    <textarea class="form-textarea" id="moodNotes"
+                                        placeholder="What's on your mind? How did today go?..." rows="3"></textarea>
+                                </div>
+
+                                <button class="btn btn-primary btn-full btn-lg" type="submit" id="moodSubmitBtn">
+                                    <span id="moodSubmitText">📊 Log My Mood</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Stats & History -->
+                    <div style="display:flex;flex-direction:column;gap:var(--space-lg);">
+                        <!-- 30-day Stats -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>📈 30-Day Average</h3>
+                            </div>
+                            <div class="card-body" id="statsSection">
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md);">
+                                    <div>
+                                        <div class="text-xs text-muted mb-xs">AVG MOOD</div>
+                                        <div class="stats-value" id="avgMoodVal">—</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-muted mb-xs">AVG SLEEP</div>
+                                        <div class="stats-value" id="avgSleepVal">—</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Logs -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>📜 Recent History</h3>
+                            </div>
+                            <div class="card-body" style="padding: 0;">
+                                <div id="moodHistoryList">
+                                    <!-- Loaded by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .mood-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+        }
+
+        .history-item {
+            padding: var(--space-md) var(--space-lg);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .history-score {
+            font-weight: 800;
+            font-size: 1.1rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+
+    <script src="api-config.js"></script>
+    <script>
+        const API = window.API_URL;
+        const token = localStorage.getItem('ax_token');
+        const user = JSON.parse(localStorage.getItem('ax_user') || '{}');
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+        if (!token) window.location.href = 'index.html';
+
+        document.getElementById('sidebarName').textContent = user.name || 'User';
+        document.getElementById('todayDate').textContent = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+
+        function updateMoodDisplay() {
+            const val = document.getElementById('moodScore').value;
+            const display = document.getElementById('moodDisplay');
+            display.textContent = val;
+            const emoji = getMoodEmoji(val);
+            display.textContent = `${val} ${emoji}`;
+
+            const pct = (val - 1) * 11.11;
+            document.getElementById('moodScore').style.setProperty('--track-fill', `${pct}%`);
+        }
+
+        function getMoodEmoji(val) {
+            if (val >= 9) return '😄';
+            if (val >= 7) return '🙂';
+            if (val >= 5) return '😐';
+            if (val >= 3) return '😔';
+            return '😞';
+        }
+
+        function toggleActivity(el) {
+            el.classList.toggle('selected');
+        }
+
+        function showToast(msg, type = 'info') {
+            const c = document.getElementById('toastContainer');
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.textContent = msg;
+            c.appendChild(t);
+            setTimeout(() => { t.style.animation = 'toastOut 0.3s ease forwards'; setTimeout(() => t.remove(), 300); }, 4000);
+        }
+
+        async function submitMood(e) {
+            e.preventDefault();
+            const btn = document.getElementById('moodSubmitBtn');
+            const text = document.getElementById('moodSubmitText');
+
+            const activities = [];
+            document.querySelectorAll('.activity-tag.selected').forEach(tag => activities.push(tag.dataset.val));
+
+            const body = {
+                mood_score: parseInt(document.getElementById('moodScore').value),
+                energy_level: parseInt(document.getElementById('energyLevel').value),
+                anxiety_level: parseInt(document.getElementById('anxietyLevel').value),
+                sleep_hours: parseFloat(document.getElementById('sleepHours').value) || null,
+                notes: document.getElementById('moodNotes').value,
+                activities
+            };
+
+            btn.disabled = true;
+            text.textContent = 'Logging...';
+
+            try {
+                const res = await fetch(`${API}/mood/log`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(body)
+                });
+
+                if (res.ok) {
+                    showToast('Mood logged successfully! 💙', 'success');
+                    document.getElementById('moodForm').reset();
+                    document.querySelectorAll('.activity-tag').forEach(t => t.classList.remove('selected'));
+                    updateMoodDisplay();
+                    loadHistory();
+                } else {
+                    const data = await res.json();
+                    showToast(data.error || 'Failed to log mood', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            } finally {
+                btn.disabled = false;
+                text.textContent = 'Log My Mood';
+            }
+        }
+
+        async function loadHistory() {
+            try {
+                const [histRes, statsRes] = await Promise.all([
+                    fetch(`${API}/mood/history?days=7`, { headers }),
+                    fetch(`${API}/mood/stats`, { headers })
+                ]);
+
+                const history = await histRes.json();
+                const stats = await statsRes.json();
+
+                // Render Stats
+                document.getElementById('avgMoodVal').textContent = stats.avg_mood ? stats.avg_mood.toFixed(1) : '—';
+                document.getElementById('avgSleepVal').textContent = stats.avg_sleep ? stats.avg_sleep.toFixed(1) + 'h' : '—';
+
+                // Render List
+                const list = document.getElementById('moodHistoryList');
+                if (history.length === 0) {
+                    list.innerHTML = `<div style="padding:var(--space-lg); text-align:center;" class="text-xs text-muted">No logs yet this week.</div>`;
+                } else {
+                    list.innerHTML = history.reverse().map(h => `
+            <div class="history-item">
+              <div>
+                <div class="history-date">${new Date(h.logged_at).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+                <div class="text-xs text-muted">${h.activities ? JSON.parse(h.activities).join(', ') : ''}</div>
+              </div>
+              <div class="history-score">${h.mood_score}/10</div>
+            </div>
+          `).join('');
+                }
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        updateMoodDisplay();
+        loadHistory();
+    </script>
+
+    <!-- Mobile Navigation & PWA Install -->
+    <script>
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const isOpen = sidebar.classList.toggle('open');
+            if (isOpen) {
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close sidebar when clicking a nav link on mobile
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleSidebar();
+                }
+            });
+        });
+
+        // PWA Install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (!localStorage.getItem('pwa_install_dismissed')) {
+                setTimeout(() => {
+                    document.getElementById('installBanner')?.classList.add('show');
+                }, 3000);
+            }
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(choice => {
+                    if (choice.outcome === 'accepted') {
+                        console.log('[PWA] App installed');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installBanner')?.classList.remove('show');
+                });
+            }
+        }
+
+        function dismissInstall() {
+            document.getElementById('installBanner')?.classList.remove('show');
+            localStorage.setItem('pwa_install_dismissed', 'true');
+        }
+    </script>
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+                    .catch(err => console.warn('[PWA] SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

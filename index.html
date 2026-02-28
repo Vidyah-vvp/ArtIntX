@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#7C6AF4" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ArtIntX" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-512.png" />
+  <title>ArtIntX — AI Healthcare Guidance Platform</title>
+  <meta name="description"
+    content="AI-powered healthcare guidance platform using advanced machine learning for symptom assessment, health risk analysis, and personalized wellness support." />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ─── Auth-specific overrides ──────────────────── */
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: var(--space-xl);
+      gap: 0;
+    }
+
+    .auth-tab-btn {
+      flex: 1;
+      padding: var(--space-sm) 0;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-family: inherit;
+      margin-bottom: -1px;
+    }
+
+    .auth-tab-btn.active {
+      color: var(--brand-primary);
+      border-bottom-color: var(--brand-primary);
+    }
+
+    .aux-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+    }
+
+    .crisis-banner {
+      background: linear-gradient(135deg, rgba(248, 113, 113, 0.12) 0%, rgba(251, 146, 60, 0.12) 100%);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      color: #FCA5A5;
+      text-align: center;
+      margin-top: var(--space-md);
+    }
+
+    .medical-disclaimer {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-top: var(--space-xl);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border-subtle);
+      text-align: center;
+      font-style: italic;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+      margin-top: var(--space-xl);
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      padding: var(--space-sm);
+    }
+
+    .feature-icon {
+      font-size: 1.2rem;
+      margin-top: 2px;
+    }
+
+    .feature-text dt {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .feature-text dd {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .split-layout {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    .split-left {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-3xl);
+      background: rgba(124, 106, 244, 0.03);
+      border-right: 1px solid var(--border-subtle);
+    }
+
+    .split-right {
+      width: 460px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-2xl);
+    }
+
+    .hero-content {
+      max-width: 480px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(124, 106, 244, 0.15);
+      border: 1px solid rgba(124, 106, 244, 0.3);
+      border-radius: var(--radius-full);
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--brand-primary);
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-lg);
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--brand-primary);
+      border-radius: 50%;
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    .hero-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: var(--space-md);
+    }
+
+    .hero-desc {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: var(--space-xl);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: var(--space-xl);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 1.75rem;
+      font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    @media (max-width: 900px) {
+      .split-left {
+        display: none;
+      }
+
+      .split-right {
+        width: 100%;
+        min-height: 100vh;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .aux-fields {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Decorative orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <div class="split-layout">
+    <!-- Left Hero Panel -->
+    <div class="split-left">
+      <div class="hero-content">
+        <div class="hero-badge">🛡️ AI-Powered Healthcare Guidance</div>
+        <h1 class="hero-title">
+          Your <span class="gradient-text">Healthcare</span><br />Journey Starts Here
+        </h1>
+        <p class="hero-desc">
+          ArtIntX uses advanced AI to provide basic healthcare guidance, symptom assessment, and health risk analysis to
+          support your overall well-being and recovery.
+        </p>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-num">Clinical</div>
+            <div class="stat-label">Validated</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">24/7</div>
+            <div class="stat-label">AI Health</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">Smart</div>
+            <div class="stat-label">Risk Alerts</div>
+          </div>
+        </div>
+        <dl class="feature-grid">
+          <div class="feature-item">
+            <span class="feature-icon">🤖</span>
+            <div class="feature-text">
+              <dt>AI Healthcare Companion</dt>
+              <dd>Symptom assessment & health guidance anytime</dd>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">📊</span>
+            <div class="feature-text">
+              <dt>Symptom & Mood Tracking</dt>
+              <dd>Longitudinal data to monitor your recovery</dd>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">📈</span>
+            <div class="feature-text">
+              <dt>Health Risk Analytics</dt>
+              <dd>ML identifies potential health risks early</dd>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🚑</span>
+            <div class="feature-text">
+              <dt>Emergency Contacts</dt>
+              <dd>Immediate access to 24/7 medical helplines</dd>
+            </div>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Right Auth Panel -->
+    <div class="split-right">
+      <div class="auth-card" style="width:100%;">
+        <div class="auth-logo">
+          <div class="auth-logo-icon">🧠</div>
+          <span class="auth-logo-text">ArtIntX</span>
+        </div>
+
+        <!-- Auth Tabs -->
+        <div class="auth-tabs">
+          <button class="auth-tab-btn active" id="loginTab" onclick="switchAuthTab('login')">Sign In</button>
+          <button class="auth-tab-btn" id="registerTab" onclick="switchAuthTab('register')">Create Account</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm">
+          <p class="auth-subtitle">Welcome back. You're safe here. 💙</p>
+          <form class="auth-form" onsubmit="handleLogin(event)">
+            <div class="form-group">
+              <label class="form-label" for="loginEmail">Email Address</label>
+              <input class="form-input" type="email" id="loginEmail" placeholder="you@example.com" required
+                autocomplete="email" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="loginPassword">Password</label>
+              <input class="form-input" type="password" id="loginPassword" placeholder="••••••••" required
+                autocomplete="current-password" />
+            </div>
+            <button class="btn btn-primary btn-full btn-lg" type="submit" id="loginBtn">
+              <span id="loginBtnText">Sign In to ArtIntX</span>
+            </button>
+          </form>
+          <div class="auth-divider">or try demo</div>
+          <button class="btn btn-secondary btn-full" onclick="fillDemo()">👤 Use Demo Account</button>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" class="hidden">
+          <p class="auth-subtitle">Begin your healing journey today. 🌱</p>
+          <form class="auth-form" onsubmit="handleRegister(event)">
+            <div class="form-group">
+              <label class="form-label" for="regName">Full Name</label>
+              <input class="form-input" type="text" id="regName" placeholder="Your name" required autocomplete="name" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="regEmail">Email Address</label>
+              <input class="form-input" type="email" id="regEmail" placeholder="you@example.com" required
+                autocomplete="email" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="regPassword">Password</label>
+              <input class="form-input" type="password" id="regPassword" placeholder="Min. 8 characters" required
+                minlength="8" autocomplete="new-password" />
+            </div>
+            <div class="aux-fields">
+              <div class="form-group">
+                <label class="form-label" for="regAge">Age</label>
+                <input class="form-input" type="number" id="regAge" placeholder="25" min="13" max="120" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="regGender">Gender</label>
+                <select class="form-select" id="regGender">
+                  <option value="">Prefer not to say</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="non-binary">Non-binary</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="regDiagnosis">Primary Concern (optional)</label>
+              <select class="form-select" id="regDiagnosis">
+                <option value="unspecified">General Health & Wellness</option>
+                <option value="chronic-pain">Chronic Pain Management</option>
+                <option value="stress-anxiety">Stress & Anxiety</option>
+                <option value="fitness-nutrition">Fitness & Nutrition</option>
+                <option value="sleep-disorders">Sleep Disorders</option>
+                <option value="post-surgery">Post-Surgery Recovery</option>
+                <option value="preventative">Preventative Care</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="regTherapist">Therapist/Clinician Name (optional)</label>
+              <input class="form-input" type="text" id="regTherapist" placeholder="Dr. Smith" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="regEmergency">Emergency Contact (optional)</label>
+              <input class="form-input" type="text" id="regEmergency" placeholder="Name — Phone number" />
+            </div>
+            <button class="btn btn-primary btn-full btn-lg" type="submit" id="registerBtn">
+              <span id="registerBtnText">Create My Account</span>
+            </button>
+          </form>
+        </div>
+
+        <div class="crisis-banner">
+          🆘 Medical Emergency? Call <strong>112</strong>. For Mental Health support, call <strong>9999 666 555</strong>
+          (Vandrevala Foundation) — available 24/7
+        </div>
+        <div class="medical-disclaimer">
+          <strong>Disclaimer:</strong> ArtIntX provides basic healthcare guidance for informational purposes only. It is
+          not a substitute for professional medical diagnosis, advice, or treatment. Always seek the advice of your
+          physician with any questions regarding a medical condition.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="api-config.js"></script>
+  <script>
+    const API = window.API_URL;
+
+    function switchAuthTab(tab) {
+      document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+      document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+      document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+      document.getElementById('registerTab').classList.toggle('active', tab === 'register');
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      const icons = { success: '✅', error: '❌', info: '💡' };
+      toast.innerHTML = `<span>${icons[type] || '💡'}</span><span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.animation = 'toastOut 0.3s ease forwards';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function fillDemo() {
+      document.getElementById('loginEmail').value = 'demo@artintx.ai';
+      document.getElementById('loginPassword').value = 'Demo1234!';
+      showToast('Demo credentials filled. Click Sign In!', 'info');
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const btn = document.getElementById('loginBtn');
+      const btnText = document.getElementById('loginBtnText');
+      btn.disabled = true;
+      btnText.textContent = 'Signing in...';
+
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        const res = await fetch(`${API}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showToast(data.error || 'Login failed', 'error');
+          btn.disabled = false;
+          btnText.textContent = 'Sign In to ArtIntX';
+          return;
+        }
+
+        localStorage.setItem('ax_token', data.token);
+        localStorage.setItem('ax_user', JSON.stringify(data.user));
+        showToast('Welcome back! 💙', 'success');
+        setTimeout(() => window.location.href = 'dashboard.html', 800);
+      } catch (err) {
+        showToast('Could not connect to server. Make sure the backend is running on port 5000.', 'error');
+        btn.disabled = false;
+        btnText.textContent = 'Sign In to ArtIntX';
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const btn = document.getElementById('registerBtn');
+      const btnText = document.getElementById('registerBtnText');
+      btn.disabled = true;
+      btnText.textContent = 'Creating account...';
+
+      const payload = {
+        name: document.getElementById('regName').value,
+        email: document.getElementById('regEmail').value,
+        password: document.getElementById('regPassword').value,
+        age: parseInt(document.getElementById('regAge').value) || null,
+        gender: document.getElementById('regGender').value || null,
+        diagnosis: document.getElementById('regDiagnosis').value,
+        therapist_name: document.getElementById('regTherapist').value || null,
+        emergency_contact: document.getElementById('regEmergency').value || null,
+      };
+
+      try {
+        const res = await fetch(`${API}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showToast(data.error || 'Registration failed', 'error');
+          btn.disabled = false;
+          btnText.textContent = 'Create My Account';
+          return;
+        }
+
+        localStorage.setItem('ax_token', data.token);
+        localStorage.setItem('ax_user', JSON.stringify(data.user));
+        showToast('Account created! Welcome to ArtIntX 🌱', 'success');
+        setTimeout(() => window.location.href = 'dashboard.html', 800);
+      } catch (err) {
+        showToast('Could not connect to server.', 'error');
+        btn.disabled = false;
+        btnText.textContent = 'Create My Account';
+      }
+    }
+
+    // Auto-redirect if already logged in
+    if (localStorage.getItem('ax_token')) {
+      window.location.href = 'dashboard.html';
+    }
+
+    // Pre-create demo account
+    async function ensureDemoAccount() {
+      try {
+        await fetch(`${API}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: 'Alex Johnson',
+            email: 'demo@artintx.ai',
+            password: 'Demo1234!',
+            age: 28,
+            gender: 'non-binary',
+            diagnosis: 'major-depressive-disorder',
+            therapist_name: 'Dr. Sarah Chen',
+            emergency_contact: 'Jordan Johnson — 555-0100',
+          }),
+        });
+      } catch (e) { /* Ignore if already exists */ }
+    }
+    ensureDemoAccount();
+  </script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+          .catch(err => console.warn('[PWA] SW registration failed:', err));
+      });
+    }
+  </script>
+</body>
+
+</html>

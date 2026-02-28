@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#7C6AF4" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ArtIntX" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-512.png" />
+    <title>Dashboard — ArtIntX</title>
+    <meta name="description"
+        content="Your personal healthcare dashboard with symptom tracking, risk scores, and AI insights." />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .welcome-banner {
+            background: var(--gradient-card);
+            border: 1px solid var(--border-accent);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl) var(--space-2xl);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--gradient-primary);
+            opacity: 0.04;
+        }
+
+        .welcome-text h2 {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        .welcome-text p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .streak-badge {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            background: rgba(251, 191, 36, 0.15);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: var(--radius-xl);
+            padding: var(--space-md) var(--space-lg);
+            flex-shrink: 0;
+        }
+
+        .streak-num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #FBBF24;
+        }
+
+        .streak-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .risk-overview-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .risk-level-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-md);
+        }
+
+        .quick-action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-lg);
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            font-family: inherit;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .quick-action-btn:hover {
+            background: rgba(124, 106, 244, 0.1);
+            border-color: var(--border-accent);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow-sm);
+        }
+
+        .quick-action-icon {
+            font-size: 1.75rem;
+        }
+
+        .quick-action-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .insights-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .insight-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-sm);
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-glass);
+            border-radius: var(--radius-md);
+            font-size: 0.84rem;
+        }
+
+        .insight-icon {
+            font-size: 1rem;
+            margin-top: 1px;
+            flex-shrink: 0;
+        }
+
+        .mood-emoji-display {
+            font-size: 4rem;
+            text-align: center;
+            margin: var(--space-md) 0;
+        }
+
+        .phq-mini-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 0.8rem;
+        }
+
+        .phq-mini-row:last-child {
+            border-bottom: none;
+        }
+
+        .engagement-ring {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(var(--brand-primary) 0%, var(--brand-secondary) var(--pct, 60%), var(--bg-glass) var(--pct, 60%));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .engagement-ring-inner {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: var(--bg-elevated);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .engagement-ring-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .engagement-ring-label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Mobile Menu -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- PWA Install Banner -->
+    <div class="pwa-install-banner" id="installBanner">
+        <div class="pwa-install-banner-icon">🧠</div>
+        <div class="pwa-install-banner-text">
+            <div class="pwa-install-banner-title">Install ArtIntX</div>
+            <div class="pwa-install-banner-desc">Add to home screen for the full app experience</div>
+        </div>
+        <button class="pwa-install-btn" id="installBtn" onclick="installPWA()">Install</button>
+        <button class="pwa-install-close" onclick="dismissInstall()">✕</button>
+    </div>
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🧠</div>
+                <span class="sidebar-logo-text">ArtIntX</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Overview</div>
+                <a class="nav-item active" href="dashboard.html">
+                    <span class="nav-item-icon">🏠</span> Dashboard
+                </a>
+                <a class="nav-item" href="chatbot.html">
+                    <span class="nav-item-icon">🩺</span> Symptom Checker
+                </a>
+
+                <div class="nav-section-label">Health Monitoring</div>
+                <a class="nav-item" href="mood.html">
+                    <span class="nav-item-icon">📊</span> Mood Tracker
+                </a>
+                <a class="nav-item" href="reminders.html">
+                    <span class="nav-item-icon">💊</span> Medicine Reminders
+                </a>
+                <a class="nav-item" href="assessment.html">
+                    <span class="nav-item-icon">📋</span> PHQ-9 Assessment
+                </a>
+                <a class="nav-item" href="analytics.html">
+                    <span class="nav-item-icon">📈</span> Analytics
+                </a>
+
+                <div class="nav-section-label">AI Insights</div>
+                <a class="nav-item" href="risk.html">
+                    <span class="nav-item-icon">⚠️</span> Risk Dashboard
+                    <span class="nav-badge" id="riskBadge" style="display:none">!</span>
+                </a>
+                <a class="nav-item" href="resources.html">
+                    <span class="nav-item-icon">📚</span> Resources
+                </a>
+
+                <div class="nav-section-label">Account</div>
+                <a class="nav-item" href="profile.html">
+                    <span class="nav-item-icon">👤</span> My Profile
+                </a>
+            </nav>
+            <div class="sidebar-user">
+                <div class="user-avatar" id="sidebarAvatar">A</div>
+                <div class="user-info">
+                    <div class="user-name" id="sidebarName">Loading...</div>
+                    <div class="user-status">Active now</div>
+                </div>
+                <button class="logout-btn" onclick="logout()" title="Sign out">⬡</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Dashboard</h1>
+                <p id="headerDate">Today's overview</p>
+            </div>
+
+            <div class="page-content page">
+
+                <!-- Welcome Banner -->
+                <div class="welcome-banner" id="welcomeBanner">
+                    <div class="welcome-text">
+                        <h2 id="welcomeMsg">Good morning! 🌅</h2>
+                        <p id="welcomeSubtext">How are you feeling today? Take a moment to check in.</p>
+                    </div>
+                    <div class="streak-badge">
+                        <div>🔥</div>
+                        <div>
+                            <div class="streak-num" id="streakNum">0</div>
+                            <div class="streak-label">day streak</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="grid-4 mb-xl">
+                    <div class="stats-card">
+                        <div class="stats-label">Today's Mood</div>
+                        <div class="stats-value gradient-text" id="latestMood">—</div>
+                        <div class="stats-delta" id="moodDelta">No log yet today</div>
+                        <div class="stats-icon">😊</div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-label">PHQ-9 Score</div>
+                        <div class="stats-value gradient-text" id="phq9Score">—</div>
+                        <div class="stats-delta" id="phq9Severity">Not assessed yet</div>
+                        <div class="stats-icon">📋</div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-label">Chat Sessions</div>
+                        <div class="stats-value gradient-text" id="chatCount">0</div>
+                        <div class="stats-delta positive">Total messages sent</div>
+                        <div class="stats-icon">💬</div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-label">Crisis Alerts</div>
+                        <div class="stats-value" id="crisisCount" style="color:var(--brand-danger)">0</div>
+                        <div class="stats-delta" id="crisisHelp">All clear ✅</div>
+                        <div class="stats-icon">🛡️</div>
+                    </div>
+                </div>
+
+                <!-- Middle Row -->
+                <div class="grid-3 mb-xl" style="grid-template-columns: 2fr 1fr;">
+                    <!-- Mood Chart -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>📈 Mood Trend — Last 14 Days</h3>
+                            <span class="text-xs text-muted">Daily average</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container" style="height: 200px;">
+                                <canvas id="moodChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Engagement Ring -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>🎯 Engagement</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="engagement-ring" id="engagementRing" style="--pct: 50%">
+                                <div class="engagement-ring-inner">
+                                    <div class="engagement-ring-value" id="engagementVal">–</div>
+                                    <div class="engagement-ring-label">Score</div>
+                                </div>
+                            </div>
+                            <p class="text-center text-xs text-secondary mt-md" id="engagementMsg">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row -->
+                <div class="grid-2 mb-xl">
+                    <!-- Quick Actions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>⚡ Quick Actions</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="quick-actions">
+                                <button class="quick-action-btn" onclick="window.location.href='mood.html'"
+                                    id="logMoodBtn">
+                                    <span class="quick-action-icon">📊</span>
+                                    <span class="quick-action-label">Log Mood</span>
+                                </button>
+                                <button class="quick-action-btn" onclick="window.location.href='chatbot.html'">
+                                    <span class="quick-action-icon">🩺</span>
+                                    <span class="quick-action-label">Check Symptoms</span>
+                                </button>
+                                <button class="quick-action-btn" onclick="window.location.href='assessment.html'">
+                                    <span class="quick-action-icon">📋</span>
+                                    <span class="quick-action-label">PHQ-9 Test</span>
+                                </button>
+                                <button class="quick-action-btn" onclick="window.location.href='analytics.html'">
+                                    <span class="quick-action-icon">📈</span>
+                                    <span class="quick-action-label">View Progress</span>
+                                </button>
+                                <button class="quick-action-btn" onclick="window.location.href='risk.html'">
+                                    <span class="quick-action-icon">⚠️</span>
+                                    <span class="quick-action-label">Risk Report</span>
+                                </button>
+                                <button class="quick-action-btn" onclick="window.location.href='resources.html'">
+                                    <span class="quick-action-icon">🆘</span>
+                                    <span class="quick-action-label">Crisis Help</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Insights -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>🤖 AI Insights</h3>
+                            <span class="text-xs text-muted">Personalized for you</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="insights-list" id="insightsList">
+                                <div class="insight-item">
+                                    <span class="insight-icon">⏳</span>
+                                    <span>Loading your personalized insights...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Snapshot -->
+                <div class="risk-overview-card mb-xl">
+                    <div class="card-header">
+                        <h3>🧠 ML Risk Snapshot</h3>
+                        <button class="btn btn-sm btn-secondary" onclick="window.location.href='risk.html'">Full Report
+                            →</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="risk-meter-container" id="riskMeters">
+                            <div class="risk-meter">
+                                <span class="risk-label">Attrition Risk</span>
+                                <div class="risk-bar-wrapper">
+                                    <div class="risk-bar low" id="riskAttritionBar" style="width:0%"></div>
+                                </div>
+                                <span class="risk-value" id="riskAttritionVal">—</span>
+                            </div>
+                            <div class="risk-meter">
+                                <span class="risk-label">Relapse Risk</span>
+                                <div class="risk-bar-wrapper">
+                                    <div class="risk-bar low" id="riskRelapseBar" style="width:0%"></div>
+                                </div>
+                                <span class="risk-value" id="riskRelapseVal">—</span>
+                            </div>
+                            <div class="risk-meter">
+                                <span class="risk-label">Crisis Risk</span>
+                                <div class="risk-bar-wrapper">
+                                    <div class="risk-bar low" id="riskCrisisBar" style="width:0%"></div>
+                                </div>
+                                <span class="risk-value" id="riskCrisisVal">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="api-config.js"></script>
+    <script>
+        const API = window.API_URL;
+        const token = localStorage.getItem('ax_token');
+        const user = JSON.parse(localStorage.getItem('ax_user') || '{}');
+
+        if (!token) window.location.href = 'index.html';
+
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+        function showToast(msg, type = 'info') {
+            const c = document.getElementById('toastContainer');
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.innerHTML = `<span>${msg}</span>`;
+            c.appendChild(t);
+            setTimeout(() => { t.style.animation = 'toastOut 0.3s ease forwards'; setTimeout(() => t.remove(), 300); }, 4000);
+        }
+
+        function logout() {
+            localStorage.removeItem('mb_token');
+            localStorage.removeItem('mb_user');
+            window.location.href = 'index.html';
+        }
+
+        function getGreeting() {
+            const h = new Date().getHours();
+            if (h < 12) return 'Good morning';
+            if (h < 17) return 'Good afternoon';
+            return 'Good evening';
+        }
+
+        function getMoodEmoji(score) {
+            if (score >= 9) return '😄';
+            if (score >= 7) return '🙂';
+            if (score >= 5) return '😐';
+            if (score >= 3) return '😔';
+            return '😞';
+        }
+
+        function getRiskClass(val) {
+            if (val < 0.35) return 'low';
+            if (val < 0.65) return 'medium';
+            return 'high';
+        }
+
+        function setupSidebar() {
+            const name = user.name || 'User';
+            document.getElementById('sidebarName').textContent = name;
+            document.getElementById('sidebarAvatar').textContent = name[0].toUpperCase();
+        }
+
+        function setupWelcome() {
+            const name = (user.name || 'friend').split(' ')[0];
+            document.getElementById('welcomeMsg').textContent = `${getGreeting()}, ${name}! 💙`;
+            document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        let moodChart = null;
+        function renderMoodChart(labels, moodData, energyData) {
+            const ctx = document.getElementById('moodChart');
+            if (!ctx) return;
+            if (moodChart) moodChart.destroy();
+
+            moodChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Mood',
+                            data: moodData,
+                            borderColor: '#7C6AF4',
+                            backgroundColor: 'rgba(124,106,244,0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#7C6AF4',
+                            pointRadius: 4,
+                        },
+                        {
+                            label: 'Energy',
+                            data: energyData,
+                            borderColor: '#5EEAD4',
+                            backgroundColor: 'rgba(94,234,212,0.05)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: false,
+                            pointBackgroundColor: '#5EEAD4',
+                            pointRadius: 4,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94A3B8', font: { size: 11 }, boxWidth: 12 } },
+                        tooltip: {
+                            backgroundColor: '#111827',
+                            borderColor: 'rgba(255,255,255,0.08)',
+                            borderWidth: 1,
+                            titleColor: '#F8FAFC',
+                            bodyColor: '#94A3B8',
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#64748B', font: { size: 10 } },
+                            grid: { color: 'rgba(255,255,255,0.04)' }
+                        },
+                        y: {
+                            min: 0,
+                            max: 10,
+                            ticks: { color: '#64748B', font: { size: 10 }, stepSize: 2 },
+                            grid: { color: 'rgba(255,255,255,0.04)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateInsights(summary, risk) {
+            const insights = [];
+            const { latest_mood, latest_phq9, chat_message_count, user: u } = summary;
+            const { attritionRisk, relapseRisk, crisisRisk, engagementScore } = risk;
+
+            if (!latest_mood) {
+                insights.push({ icon: '📊', text: 'Start tracking your mood daily to build a picture of your mental health trends.' });
+            } else if (latest_mood.mood_score <= 4) {
+                insights.push({ icon: '💙', text: `Your last mood was ${latest_mood.mood_score}/10. Reaching out to your therapist or chatbot today could help.` });
+            } else if (latest_mood.mood_score >= 7) {
+                insights.push({ icon: '🌟', text: `Wonderful! Your mood of ${latest_mood.mood_score}/10 shows real progress. Keep logging to track what's working.` });
+            }
+
+            if (!latest_phq9) {
+                insights.push({ icon: '📋', text: 'Take your first PHQ-9 assessment to establish a baseline depression severity score.' });
+            } else if (latest_phq9.total_score >= 15) {
+                insights.push({ icon: '⚠️', text: `PHQ-9 score of ${latest_phq9.total_score} indicates ${latest_phq9.severity} depression. Please consult your care team.` });
+            }
+
+            if (attritionRisk > 0.6) {
+                insights.push({ icon: '🔔', text: 'Your engagement has been low. Consistent check-ins, even brief ones, significantly improve outcomes.' });
+            }
+
+            if (u?.streak >= 3) {
+                insights.push({ icon: '🔥', text: `Amazing! ${u.streak}-day check-in streak. Consistency is one of the strongest predictors of recovery.` });
+            }
+
+            if (chat_message_count === 0) {
+                insights.push({ icon: '🩺', text: 'Check your symptoms with your AI healthcare companion. It\'s available 24/7.' });
+            }
+
+            if (crisisRisk > 0.5) {
+                insights.push({ icon: '🚨', text: 'Your risk indicators suggest you may need additional support. Please reach out to your therapist or call Vandrevala Foundation at 9999 666 555.' });
+            }
+
+            if (insights.length === 0) {
+                insights.push({ icon: '✨', text: 'You\'re doing great! Keep up your daily check-ins for the best outcomes.' });
+            }
+
+            return insights.slice(0, 4);
+        }
+
+        async function loadDashboard() {
+            try {
+                const [summaryRes, moodTrendRes, riskRes] = await Promise.all([
+                    fetch(`${API}/analytics/summary`, { headers }),
+                    fetch(`${API}/analytics/mood-trend?days=14`, { headers }),
+                    fetch(`${API}/risk/scores`, { headers }),
+                ]);
+
+                const summary = await summaryRes.json();
+                const moodTrend = await moodTrendRes.json();
+                const risk = await riskRes.json();
+
+                // Update stats
+                document.getElementById('streakNum').textContent = summary.user?.streak || 0;
+                document.getElementById('chatCount').textContent = summary.chat_message_count || 0;
+
+                if (summary.latest_mood) {
+                    const score = parseFloat(summary.latest_mood.mood_score).toFixed(1);
+                    document.getElementById('latestMood').textContent = `${score}/10 ${getMoodEmoji(score)}`;
+                    document.getElementById('moodDelta').textContent = 'Last logged mood score';
+                }
+
+                if (summary.latest_phq9) {
+                    document.getElementById('phq9Score').textContent = summary.latest_phq9.total_score;
+                    const sev = summary.latest_phq9.severity;
+                    const sevEl = document.getElementById('phq9Severity');
+                    sevEl.textContent = sev;
+                    sevEl.className = `stats-delta ${['Minimal', 'Mild'].includes(sev) ? 'positive' : 'negative'}`;
+                }
+
+                const alerts = summary.crisis_alerts || 0;
+                document.getElementById('crisisCount').textContent = alerts;
+                if (alerts > 0) {
+                    document.getElementById('crisisHelp').textContent = `⚠️ ${alerts} crisis alert(s) detected`;
+                    document.getElementById('crisisHelp').classList.add('negative');
+                    document.getElementById('riskBadge').style.display = 'flex';
+                }
+
+                // Mood chart
+                if (moodTrend.length > 0) {
+                    const labels = moodTrend.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                    const moodData = moodTrend.map(d => parseFloat(d.avg_mood).toFixed(1));
+                    const energyData = moodTrend.map(d => d.avg_energy ? parseFloat(d.avg_energy).toFixed(1) : null);
+                    renderMoodChart(labels, moodData, energyData);
+                } else {
+                    document.getElementById('moodChart').parentElement.innerHTML = `
+          <div class="chart-placeholder">
+            <span style="font-size:2rem">📊</span>
+            <span>No mood data yet. <a href="mood.html">Log your first entry!</a></span>
+          </div>`;
+                }
+
+                // Risk meters
+                const setRisk = (barId, valId, val) => {
+                    const pct = (val * 100).toFixed(0);
+                    const bar = document.getElementById(barId);
+                    bar.style.width = `${pct}%`;
+                    bar.className = `risk-bar ${getRiskClass(val)}`;
+                    document.getElementById(valId).textContent = `${pct}%`;
+                };
+                setRisk('riskAttritionBar', 'riskAttritionVal', risk.attritionRisk);
+                setRisk('riskRelapseBar', 'riskRelapseVal', risk.relapseRisk);
+                setRisk('riskCrisisBar', 'riskCrisisVal', risk.crisisRisk);
+
+                // Engagement ring
+                const eng = risk.engagementScore;
+                const engPct = Math.round(eng * 100);
+                document.getElementById('engagementRing').style.cssText = `--pct: ${engPct * 3.6}deg`;
+                document.getElementById('engagementRing').style.background = `conic-gradient(#7C6AF4 0deg, #5EEAD4 ${engPct * 3.6}deg, rgba(255,255,255,0.04) ${engPct * 3.6}deg)`;
+                document.getElementById('engagementVal').textContent = `${engPct}%`;
+                document.getElementById('engagementMsg').textContent = engPct >= 70 ? '🌟 High engagement!' : engPct >= 40 ? '📈 Building consistency' : '⚠️ Low engagement — check in more often';
+
+                // AI Insights
+                const insights = generateInsights(summary, risk);
+                document.getElementById('insightsList').innerHTML = insights.map(i =>
+                    `<div class="insight-item"><span class="insight-icon">${i.icon}</span><span>${i.text}</span></div>`
+                ).join('');
+
+            } catch (err) {
+                console.error('Dashboard load error:', err);
+                showToast('Could not load dashboard data. Is the backend running?', 'error');
+            }
+        }
+
+        setupSidebar();
+        setupWelcome();
+        loadDashboard();
+    </script>
+
+
+    <!-- Mobile Navigation & PWA Install -->
+    <script>
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const isOpen = sidebar.classList.toggle('open');
+            if (isOpen) {
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close sidebar when clicking a nav link on mobile
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleSidebar();
+                }
+            });
+        });
+
+        // PWA Install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (!localStorage.getItem('pwa_install_dismissed')) {
+                setTimeout(() => {
+                    document.getElementById('installBanner')?.classList.add('show');
+                }, 3000);
+            }
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(choice => {
+                    if (choice.outcome === 'accepted') {
+                        console.log('[PWA] App installed');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installBanner')?.classList.remove('show');
+                });
+            }
+        }
+
+        function dismissInstall() {
+            document.getElementById('installBanner')?.classList.remove('show');
+            localStorage.setItem('pwa_install_dismissed', 'true');
+        }
+    </script>
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+                    .catch(err => console.warn('[PWA] SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

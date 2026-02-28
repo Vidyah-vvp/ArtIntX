@@ -1,0 +1,61 @@
+{
+    "name": "ArtIntX — AI Healthcare Guidance",
+    "short_name": "ArtIntX",
+    "description": "AI-powered healthcare guidance platform with symptom assessment, mood tracking, medication reminders, and medical resources.",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#080B14",
+    "theme_color": "#7C6AF4",
+    "scope": "/",
+    "lang": "en",
+    "categories": [
+        "health",
+        "medical",
+        "lifestyle"
+    ],
+    "icons": [
+        {
+            "src": "icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [],
+    "shortcuts": [
+        {
+            "name": "AI Healthcare Chat",
+            "short_name": "Chat",
+            "url": "/chatbot.html",
+            "icons": [
+                {
+                    "src": "icon-512.png",
+                    "sizes": "512x512"
+                }
+            ]
+        },
+        {
+            "name": "Symptom Tracker",
+            "short_name": "Mood",
+            "url": "/mood.html",
+            "icons": [
+                {
+                    "src": "icon-512.png",
+                    "sizes": "512x512"
+                }
+            ]
+        },
+        {
+            "name": "Health Assessment",
+            "short_name": "PHQ-9",
+            "url": "/assessment.html",
+            "icons": [
+                {
+                    "src": "icon-512.png",
+                    "sizes": "512x512"
+                }
+            ]
+        }
+    ]
+}

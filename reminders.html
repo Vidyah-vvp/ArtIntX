@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#7C6AF4" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ArtIntX" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-512.png" />
+    <title>Medicine Reminders — ArtIntX</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+        .reminder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .reminder-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            position: relative;
+            transition: all var(--transition-base);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .reminder-card:hover {
+            border-color: var(--border-accent);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow-sm);
+        }
+
+        .reminder-time-badge {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 700;
+            width: fit-content;
+        }
+
+        .reminder-medicine {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .reminder-details {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .reminder-actions {
+            margin-top: var(--space-md);
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .reminder-delete {
+            position: absolute;
+            top: var(--space-sm);
+            right: var(--space-sm);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 8px;
+            transition: color 0.2s;
+        }
+
+        .reminder-delete:hover {
+            color: var(--brand-danger);
+        }
+
+        .add-reminder-card {
+            background: var(--bg-glass);
+            border: 2px dashed var(--border-subtle);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            cursor: pointer;
+            padding: var(--space-2xl);
+            transition: all var(--transition-base);
+            min-height: 180px;
+        }
+
+        .add-reminder-card:hover {
+            background: var(--bg-glass-hover);
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+        }
+
+        .add-icon {
+            font-size: 2.5rem;
+            opacity: 0.5;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-accent);
+            border-radius: var(--radius-xl);
+            padding: var(--space-2xl);
+            width: 100%;
+            max-width: 480px;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .frequency-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-sm);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="orb orb-1"></div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Add Reminder Modal -->
+    <div class="modal" id="reminderModal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: var(--space-lg);">💊 Set Medicine Reminder</h3>
+            <form id="reminderForm" onsubmit="saveReminder(event)" class="flex flex-col gap-lg">
+                <div class="form-group">
+                    <label class="form-label">Medicine Name</label>
+                    <input type="text" class="form-input" id="medName" placeholder="e.g. Paracetamol" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Dosage</label>
+                    <input type="text" class="form-input" id="medDosage" placeholder="e.g. 500mg, 1 tablet" required>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Time</label>
+                        <input type="time" class="form-input" id="medTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Frequency</label>
+                        <select class="form-select" id="medFreq">
+                            <option value="daily">Daily</option>
+                            <option value="twice_daily">Twice Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="as_needed">As Needed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex gap-md mt-lg">
+                    <button type="button" class="btn btn-secondary flex-1" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary flex-1">Save Reminder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🧠</div><span class="sidebar-logo-text">ArtIntX</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Overview</div>
+                <a class="nav-item" href="dashboard.html"><span class="nav-item-icon">🏠</span> Dashboard</a>
+                <a class="nav-item" href="chatbot.html">
+                    <span class="nav-item-icon">🩺</span> Symptom Checker
+                </a>
+                <div class="nav-section-label">Health Monitoring</div>
+                <a class="nav-item" href="mood.html"><span class="nav-item-icon">📊</span> Mood Tracker</a>
+                <a class="nav-item active" href="reminders.html"><span class="nav-item-icon">💊</span> Medicine
+                    Reminders</a>
+                <a class="nav-item" href="assessment.html"><span class="nav-item-icon">📋</span> PHQ-9 Assessment</a>
+                <a class="nav-item" href="analytics.html"><span class="nav-item-icon">📈</span> Analytics</a>
+                <div class="nav-section-label">AI Insights</div>
+                <a class="nav-item" href="risk.html"><span class="nav-item-icon">⚠️</span> Risk Dashboard</a>
+                <a class="nav-item" href="resources.html"><span class="nav-item-icon">📚</span> Resources</a>
+                <div class="nav-section-label">Account</div>
+                <a class="nav-item" href="profile.html"><span class="nav-item-icon">👤</span> My Profile</a>
+            </nav>
+            <div class="sidebar-user">
+                <div class="user-avatar" id="sidebarAvatar">A</div>
+                <div class="user-info">
+                    <div class="user-name" id="sidebarName">User</div>
+                    <div class="user-status">Active now</div>
+                </div>
+                <button class="logout-btn" onclick="localStorage.clear();window.location.href='index.html'">⬡</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>💊 Medicine Reminders</h1>
+                <p>Track your medication intake and stay on schedule</p>
+            </div>
+
+            <div class="page-content page">
+                <div class="alert alert-info mb-xl">
+                    <span>💡</span>
+                    <span>Consistently taking medications as prescribed is a key factor in health recovery. Aria can
+                        help you stay on track.</span>
+                </div>
+
+                <div class="reminder-grid" id="reminderGrid">
+                    <!-- Loaded by JS -->
+                    <div class="add-reminder-card" onclick="openModal()">
+                        <div class="add-icon">+</div>
+                        <div class="font-bold">Add Reminder</div>
+                        <div class="text-xs text-muted">Set a new medication alert</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="api-config.js"></script>
+    <script>
+        const API = window.API_URL;
+        const token = localStorage.getItem('ax_token');
+        const user = JSON.parse(localStorage.getItem('ax_user') || '{}');
+        if (!token) window.location.href = 'index.html';
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+        document.getElementById('sidebarName').textContent = user.name || 'User';
+        document.getElementById('sidebarAvatar').textContent = (user.name || 'U')[0].toUpperCase();
+
+        function showToast(msg, type = 'info') {
+            const c = document.getElementById('toastContainer');
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.textContent = msg;
+            c.appendChild(t);
+            setTimeout(() => { t.style.animation = 'toastOut 0.3s ease forwards'; setTimeout(() => t.remove(), 300); }, 4000);
+        }
+
+        function openModal() {
+            document.getElementById('reminderModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('reminderModal').classList.remove('show');
+            document.getElementById('reminderForm').reset();
+        }
+
+        async function loadReminders() {
+            try {
+                const res = await fetch(`${API}/reminders`, { headers });
+                const reminders = await res.json();
+                renderReminders(reminders);
+            } catch (err) {
+                showToast('Could not load reminders', 'error');
+            }
+        }
+
+        function renderReminders(reminders) {
+            const grid = document.getElementById('reminderGrid');
+            const addButton = `
+                <div class="add-reminder-card" onclick="openModal()">
+                    <div class="add-icon">+</div>
+                    <div class="font-bold">Add Reminder</div>
+                    <div class="text-xs text-muted">Set a new medication alert</div>
+                </div>
+            `;
+
+            grid.innerHTML = reminders.map(r => `
+                <div class="reminder-card">
+                    <button class="reminder-delete" onclick="deleteReminder('${r.id}')" title="Remove reminder">✕</button>
+                    <div class="reminder-time-badge">🕒 ${r.reminder_time}</div>
+                    <div class="reminder-medicine">${r.medicine_name}</div>
+                    <div class="reminder-details">
+                        <span><strong>Dosage:</strong> ${r.dosage || 'Not specified'}</span>
+                        <span><strong>Frequency:</strong> ${r.frequency.replace('_', ' ')}</span>
+                    </div>
+                    <div class="reminder-actions">
+                        <button class="btn btn-sm btn-secondary" onclick="markTaken('${r.id}')">✅ Mark Taken</button>
+                    </div>
+                </div>
+            `).join('') + addButton;
+        }
+
+        async function saveReminder(e) {
+            e.preventDefault();
+            const payload = {
+                medicine_name: document.getElementById('medName').value,
+                dosage: document.getElementById('medDosage').value,
+                reminder_time: document.getElementById('medTime').value,
+                frequency: document.getElementById('medFreq').value
+            };
+
+            try {
+                const res = await fetch(`${API}/reminders`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    showToast('Reminder set! 💊', 'success');
+                    closeModal();
+                    loadReminders();
+                } else {
+                    const err = await res.json();
+                    showToast(err.error || 'Failed to save', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            }
+        }
+
+        async function deleteReminder(id) {
+            if (!confirm('Are you sure you want to remove this reminder?')) return;
+            try {
+                const res = await fetch(`${API}/reminders/${id}`, { method: 'DELETE', headers });
+                if (res.ok) {
+                    showToast('Reminder removed', 'info');
+                    loadReminders();
+                }
+            } catch (err) {
+                showToast('Failed to delete', 'error');
+            }
+        }
+
+        function markTaken(id) {
+            showToast('Nice job staying on track! 🌟', 'success');
+        }
+
+        loadReminders();
+    </script>
+</body>
+
+</html>
